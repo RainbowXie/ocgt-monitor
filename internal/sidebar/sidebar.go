@@ -83,7 +83,7 @@ func New(port int) *Sidebar {
 	wv := webview.New(false)
 	wv.SetTitle("")
 	wv.SetSize(panelWidth, screenH, webview.HintFixed)
-	wv.Navigate(fmt.Sprintf("http://127.0.0.1:%d/sidebar", port))
+	wv.Navigate(fmt.Sprintf("http://127.0.0.1:%d/sidebar.html", port))
 
 	hwnd := uintptr(wv.Window())
 
