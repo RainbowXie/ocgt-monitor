@@ -68,12 +68,28 @@ func (s *Server) Start(addr string) error {
 	mux.HandleFunc("/api/models", func(w http.ResponseWriter, r *http.Request) {
 		logs, e := storage.ReadOCGTLogs(ocgtLogDir())
 		if e != nil { writeJSON(w, 200, map[string]any{"success": false, "error": e.Error()}); return }
-		days := 7
 		r.ParseForm()
-		if d := r.Form.Get("days"); d != "" {
-			if n, err := fmt.Sscanf(d, "%d", &days); err != nil || n != 1 || days < 1 { days = 7 }
+		var models map[string]storage.TokenStatsByModel
+		if from := r.Form.Get("from"); from != "" {
+			fromT, err1 := time.Parse("2006-01-02", from)
+			toT, err2 := time.Parse("2006-01-02", r.Form.Get("to"))
+			if err1 == nil && err2 == nil {
+				toT = toT.Add(24*time.Hour - time.Second)
+				models = storage.CalculateModelStatsByRange(logs, fromT, toT)
+			} else {
+				days := 7
+				if d := r.Form.Get("days"); d != "" {
+					if n, err := fmt.Sscanf(d, "%d", &days); err != nil || n != 1 || days < 1 { days = 7 }
+				}
+				models = storage.CalculateModelStats(logs, days)
+			}
+		} else {
+			days := 7
+			if d := r.Form.Get("days"); d != "" {
+				if n, err := fmt.Sscanf(d, "%d", &days); err != nil || n != 1 || days < 1 { days = 7 }
+			}
+			models = storage.CalculateModelStats(logs, days)
 		}
-		models := storage.CalculateModelStats(logs, days)
 		type MStat struct { Model string `json:"model"`; InputTokens int `json:"input_tokens"`; OutputTokens int `json:"output_tokens"`; TotalTokens int `json:"total_tokens"`; RequestCount int `json:"request_count"` }
 		var list []MStat
 		for _, s := range models { list = append(list, MStat{s.Model, s.InputTokens, s.OutputTokens, s.TotalTokens, s.RequestCount}) }
