@@ -19,33 +19,33 @@ var (
 
 const (
 	panelWidth    = 300
-	triggerZonePx = 6
-	gap           = 2
-	animSteps     = 12
-	animStepMs    = 8
-	pollMs        = 80
-	hideDelayMs   = 1800
+	triggerZonePx = 10
+	animSteps     = 8
+	animStepMs    = 6
+	pollMs        = 40
+	hideDelayMs   = 600
 	swpNoZOrder   = 0x0004
 	swpNoActivate = 0x0010
-	// Window style constants
-	wsCaption     = 0x00C00000
-	wsThickFrame  = 0x00040000
-	wsSysMenu     = 0x00080000
-	wsMinimizeBox = 0x00020000
-	wsMaximizeBox = 0x00010000
-	wsPopUp       = 0x80000000
+	hwndTopMost   = ^uintptr(1-1) // -1 as HWND_TOPMOST
+
+	wsCaption      = 0x00C00000
+	wsThickFrame   = 0x00040000
+	wsSysMenu      = 0x00080000
+	wsMinimizeBox  = 0x00020000
+	wsMaximizeBox  = 0x00010000
+	wsPopUp        = 0x80000000
 	wsClipChildren = 0x02000000
-	// Extended style constants
-	wsExToolWindow  = 0x00000080
-	wsExTopMost     = 0x00000008
-	wsExNoActivate  = 0x08000000
+
+	wsExToolWindow = 0x00000080
+	wsExTopMost    = 0x00000008
+	wsExNoActivate = 0x08000000
 )
 
 type POINT struct{ X, Y int32 }
 
 func getScreenSize() (int, int) {
-	w, _, _ := procGetSystemMetrics.Call(0)  // SM_CXSCREEN
-	h, _, _ := procGetSystemMetrics.Call(1) // SM_CYSCREEN
+	w, _, _ := procGetSystemMetrics.Call(0)
+	h, _, _ := procGetSystemMetrics.Call(1)
 	return int(w), int(h)
 }
 
@@ -55,21 +55,17 @@ func getCursorPos() (int, int) {
 	return int(pt.X), int(pt.Y)
 }
 
-// intToPtr converts a signed int to uintptr for Windows API calls.
-// Go 1.25+ requires explicit conversion for negative constants.
-func intToPtr(n int) uintptr {
-	return uintptr(int32(n))
-}
+func intToPtr(n int) uintptr { return uintptr(int32(n)) }
 
 type Sidebar struct {
-	wv       webview.WebView
-	hwnd     uintptr
-	screenW  int
-	screenH  int
-	hiddenX  int
-	shownX   int
-	hidden   bool
-	shown    bool
+	wv        webview.WebView
+	hwnd      uintptr
+	screenW   int
+	screenH   int
+	hiddenX   int
+	shownX    int
+	hidden    bool
+	shown     bool
 	animating bool
 }
 
@@ -77,7 +73,7 @@ func New(port int) *Sidebar {
 	runtime.LockOSThread()
 
 	screenW, screenH := getScreenSize()
-	hiddenX := screenW - triggerZonePx
+	hiddenX := screenW - triggerZonePx + 4
 	shownX := screenW - panelWidth
 
 	wv := webview.New(false)
@@ -97,15 +93,15 @@ func New(port int) *Sidebar {
 	style |= wsPopUp | wsClipChildren
 	setWindowLong.Call(hwnd, gwlStyle, style)
 
-	// Extended styles: tool window, topmost, no activate
+	// Extended styles: tool window, topmost, no activate, layered
 	gwlExStyle := intToPtr(-20)
 	exStyle, _, _ := getWindowLong.Call(hwnd, gwlExStyle)
 	exStyle |= wsExToolWindow | wsExTopMost | wsExNoActivate
 	setWindowLong.Call(hwnd, gwlExStyle, exStyle)
 
-	// Apply frame changes and position at right edge (hidden)
-	procSetWindowPos.Call(hwnd, 0, uintptr(hiddenX), 0, panelWidth, uintptr(screenH),
-		swpNoZOrder|swpNoActivate|0x0020) // SWP_FRAMECHANGED
+	// Position at right edge with HWND_TOPMOST to ensure top z-order
+	procSetWindowPos.Call(hwnd, hwndTopMost, uintptr(hiddenX), 0,
+		panelWidth, uintptr(screenH), swpNoActivate|0x0020)
 
 	return &Sidebar{
 		wv: wv, hwnd: hwnd,
@@ -121,7 +117,6 @@ func (s *Sidebar) Run() {
 	s.wv.Destroy()
 }
 
-// slide moves the window smoothly from current position to targetX.
 func (s *Sidebar) slide(targetX int) {
 	s.animating = true
 	defer func() { s.animating = false }()
@@ -135,22 +130,21 @@ func (s *Sidebar) slide(targetX int) {
 			dx = -1
 		}
 	}
-
 	for i := 0; i < animSteps; i++ {
 		x += dx
 		if (dx > 0 && x > targetX) || (dx < 0 && x < targetX) {
 			x = targetX
 		}
-		procSetWindowPos.Call(s.hwnd, 0, uintptr(x), 0, panelWidth, uintptr(s.screenH),
-			swpNoZOrder|swpNoActivate)
+		// Always set HWND_TOPMOST to keep panel on top
+		procSetWindowPos.Call(s.hwnd, hwndTopMost, uintptr(x), 0,
+			panelWidth, uintptr(s.screenH), swpNoActivate)
 		time.Sleep(animStepMs * time.Millisecond)
 		if x == targetX {
 			break
 		}
 	}
-	// Ensure final position
-	procSetWindowPos.Call(s.hwnd, 0, uintptr(targetX), 0, panelWidth, uintptr(s.screenH),
-		swpNoZOrder|swpNoActivate)
+	procSetWindowPos.Call(s.hwnd, hwndTopMost, uintptr(targetX), 0,
+		panelWidth, uintptr(s.screenH), swpNoActivate)
 }
 
 func (s *Sidebar) getWindowRect() (int, int, int, int) {
@@ -160,24 +154,34 @@ func (s *Sidebar) getWindowRect() (int, int, int, int) {
 	return int(rect[0]), int(rect[1]), int(rect[2]), int(rect[3])
 }
 
-// edgeLoop polls mouse position to auto-show/hide the panel.
+// reTopMost re-asserts topmost status periodically to prevent occlusion.
+func (s *Sidebar) reTopMost() {
+	procSetWindowPos.Call(s.hwnd, hwndTopMost, 0, 0, 0, 0,
+		swpNoActivate|swpNoZOrder|0x0001) // SWP_NOSIZE | SWP_NOMOVE
+}
+
 func (s *Sidebar) edgeLoop() {
 	ticker := time.NewTicker(pollMs * time.Millisecond)
 	defer ticker.Stop()
 
 	var hideTimer int
+	var topMostTicker int
 
 	for range ticker.C {
 		mx, my := getCursorPos()
-		inTrigger := mx >= s.screenW-triggerZonePx-4 && mx <= s.screenW &&
+
+		// Widen the trigger zone: detect from screen edge inward
+		inTrigger := mx >= s.screenW-triggerZonePx && mx <= s.screenW+panelWidth &&
 			my >= 0 && my <= s.screenH
 
-		inPanel := mx >= s.shownX-2 && mx <= s.screenW+panelWidth &&
-			my >= -10 && my <= s.screenH+10
+		// Wider panel zone to prevent accidental hide when user is near
+		inPanel := mx >= s.shownX-10 && mx <= s.screenW+panelWidth &&
+			my >= -20 && my <= s.screenH+20
 
 		if !s.shown && inTrigger && !s.animating {
 			s.shown = true
 			s.hidden = false
+			hideTimer = 0
 			s.wv.Dispatch(func() { go s.slide(s.shownX) })
 		} else if s.shown && !inPanel && !s.animating {
 			hideTimer++
@@ -189,6 +193,15 @@ func (s *Sidebar) edgeLoop() {
 			}
 		} else if s.shown && inPanel {
 			hideTimer = 0
+		}
+
+		// Periodically re-assert topmost (every ~2 seconds)
+		topMostTicker++
+		if topMostTicker >= 50 { // 50 * 40ms = 2s
+			topMostTicker = 0
+			if s.shown {
+				s.reTopMost()
+			}
 		}
 	}
 }

@@ -36,3 +36,12 @@
 - **文件:** `internal/web/static/help.html`
 - **原因:** 新增侧边栏模式、桌面面板化的功能说明
 - **风格:** 欧美美学，全英文界面，清晰的信息层级
+
+## 2026-06-02 18:15: 侧边栏优化：窗口置顶+灵敏度+中英双语+模型区分
+- **文件:** `internal/sidebar/sidebar.go`, `internal/web/static/sidebar.html`
+- **修复:**
+  - 窗口被遮挡：所有 SetWindowPos 强制 HWND_TOPMOST，每 2s 重新置顶
+  - 触发/回退灵敏度：触发区 10px，轮询 40ms，回退延迟 600ms
+  - 中文为主英文为辅：全部标注改为中文+英文标注
+  - DeepSeek 未配置时隐藏余额区域
+  - 模型区分：按提供商着色（deepseek蓝/mimo绿/glm黄等），名称智能缩写
