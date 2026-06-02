@@ -31,3 +31,8 @@
 - **新增:** `serve --sidebar` 启动参数
 - **依赖:** github.com/webview/webview_go, golang.org/x/sys/windows
 - **构建:** CGO_ENABLED=1, GCC via MSYS2 MinGW64
+
+## 2026-06-02 17:30: 更新使用说明文档
+- **文件:** `internal/web/static/help.html`
+- **原因:** 新增侧边栏模式、桌面面板化的功能说明
+- **风格:** 欧美美学，全英文界面，清晰的信息层级

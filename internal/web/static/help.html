@@ -1,132 +1,259 @@
 <!DOCTYPE html>
-<html lang=zh-CN>
+<html lang=en>
 <head>
 <meta charset=UTF-8>
 <meta name=viewport content="width=device-width,initial-scale=1.0">
-<title>ocgt-monitor 使用说明</title>
+<title>ocgt-monitor — documentation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
 <style>
+:root{--bg:#fafafa;--surface:#fff;--border:#e5e7eb;--text:#18181b;--sec:#52525b;--ter:#a1a1aa;--accent:#4361ee;--accent-light:#eef1ff;--green:#2b9348;--green-bg:#f0fdf4;--amber:#d97706;--amber-bg:#fffbeb;--red:#dc2626;--red-bg:#fef2f2;--code-bg:#f4f4f5;--radius:12px;--radius-sm:8px;--font:'Inter',-apple-system,'Segoe UI',sans-serif;--mono:'SF Mono','Fira Code',monospace}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif;background:#fafafa;color:#18181b;padding:48px 24px;line-height:1.8;max-width:820px;margin:0 auto}
-h1{font-size:26px;font-weight:700;margin-bottom:4px}
-h2{font-size:18px;font-weight:600;margin:40px 0 16px;padding-bottom:10px;border-bottom:2px solid #18181b}
-p{margin-bottom:12px;font-size:14px;color:#52525b}
-strong{color:#18181b}
-code,kbd{font-family:monospace;font-size:13px;background:#f4f4f5;padding:2px 8px;border-radius:5px;border:1px solid #e5e7eb}
-pre{background:#1a1a2e;color:#e2e8f0;border-radius:8px;padding:16px 20px;overflow-x:auto;font-size:13px;font-family:monospace;line-height:1.7}
-.card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px 24px;margin-bottom:12px}
-.box{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:24px;margin-bottom:16px}
-.box .tag{display:inline-block;background:#2563eb;color:#fff;font-size:12px;font-weight:600;padding:2px 12px;border-radius:20px;margin-bottom:12px}
-.callout{padding:14px 18px;border-radius:8px;margin:16px 0;font-size:14px;border-left:3px solid;line-height:1.7}
-.callout.info{background:#eff6ff;border-color:#2563eb}
-.callout.warn{background:#fffbeb;border-color:#d97706}
-.callout.ok{background:#f0fdf4;border-color:#16a34a}
-.callout.err{background:#fef2f2;border-color:#dc2626}
-ol,ul{padding-left:20px;margin:8px 0}
-li{margin:6px 0;font-size:14px;color:#52525b}
-.term-box{background:#f4f4f5;border:1px dashed #d4d4d8;border-radius:8px;padding:12px 16px;margin:12px 0;font-size:13px;color:#71717a;text-align:center;font-family:monospace;line-height:1.6}
-.footer{text-align:center;margin-top:56px;padding-top:24px;border-top:1px solid #e5e7eb;color:#a1a1aa;font-size:13px}
+body{font-family:var(--font);background:var(--bg);color:var(--text);padding:48px 24px;line-height:1.7;-webkit-font-smoothing:antialiased}
+.container{max-width:860px;margin:0 auto}
+h1{font-size:26px;font-weight:700;letter-spacing:-.5px;margin-bottom:2px}
+.sub{color:var(--sec);font-size:15px;margin-bottom:32px}
+h2{font-size:17px;font-weight:600;margin:40px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--border);letter-spacing:-.3px}
+h3{font-size:14px;font-weight:600;margin:24px 0 8px;color:var(--text)}
+p{font-size:14px;color:var(--sec);margin-bottom:10px;line-height:1.7}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+code,kbd{font-family:var(--mono);font-size:13px;background:var(--code-bg);padding:2px 7px;border-radius:5px;border:1px solid var(--border);color:var(--text)}
+pre{background:#1a1a2e;color:#e2e8f0;border-radius:var(--radius-sm);padding:16px 20px;overflow-x:auto;font-size:13px;line-height:1.7;font-family:var(--mono)}
+pre .c{color:#94a3b8;font-style:italic}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;margin-bottom:12px}
+.card-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:640px){.card-grid{grid-template-columns:1fr}}
+.tag{display:inline-block;font-size:11px;font-weight:600;padding:2px 10px;border-radius:20px;letter-spacing:.3px}
+.tag.blue{background:var(--accent-light);color:var(--accent)}
+.tag.green{background:var(--green-bg);color:var(--green)}
+.callout{padding:14px 18px;border-radius:var(--radius-sm);margin:14px 0;font-size:14px;display:flex;gap:10px;align-items:flex-start;line-height:1.7;border-left:3px solid}
+.callout.info{background:var(--accent-light);border-color:var(--accent)}
+.callout.warn{background:var(--amber-bg);border-color:var(--amber)}
+.callout.ok{background:var(--green-bg);border-color:var(--green)}
+.callout.err{background:var(--red-bg);border-color:var(--red)}
+.callout .ic{font-size:16px;flex-shrink:0;line-height:1.4}
+.callout code{background:rgba(0,0,0,0.05)}.callout.info code{background:rgba(67,97,238,0.1)}
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:14px;background:var(--surface);border-radius:var(--radius-sm);overflow:hidden}
+th{background:var(--code-bg);color:var(--sec);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;padding:10px 14px;text-align:left;border-bottom:1px solid var(--border)}
+td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text)}
+tr:last-child td{border-bottom:none}
+td.cmd{font-family:var(--mono);font-size:13px;white-space:nowrap}
+ul{padding-left:20px;margin:8px 0}
+li{margin:5px 0;font-size:14px;color:var(--sec)}
+.footer{text-align:center;margin-top:56px;padding-top:24px;border-top:1px solid var(--border);color:var(--ter);font-size:13px}
+.step{display:flex;gap:14px;margin-bottom:14px;padding:18px 20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius)}
+.step-n{flex-shrink:0;width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center}
+.step-b{flex:1;min-width:0}.step-b h3{margin:0 0 4px;font-size:14px}.step-b p{margin:0 0 8px;font-size:13px}.step-b p:last-child{margin-bottom:0}
 </style>
 </head>
 <body>
+<div class=container>
 
 <h1>ocgt-monitor</h1>
-<p>OpenCode Go 套餐额度监控工具 — 一步一步教你用</p>
+<p class=sub>OpenCode Go plan quota &amp; token usage dashboard — CLI, web, and desktop sidebar</p>
 
 <div class="callout warn">
-<strong>PowerShell（蓝色窗口）用户注意：</strong> 运行命令时要在前面加 <code>.\</code>，例如 <code>.\ocgt-monitor quota</code>。<br>
-如果是 cmd（黑色窗口），直接输入 <code>ocgt-monitor quota</code> 就行。
+<div class=ic>!</div>
+<div style=flex:1><strong>PowerShell users:</strong> prefix commands with <code>.\</code> — e.g. <code>.\ocgt-monitor quota</code>.<br>
+<strong>CMD users:</strong> just type <code>ocgt-monitor quota</code> directly.</div>
 </div>
+
+<h2>Overview</h2>
+<p>ocgt-monitor is a standalone tool for monitoring your <strong>OpenCode Go plan usage</strong>. It queries the OpenCode Go RPC API directly — no dependency on ocgt proxy except for the <code>history</code> command, which reads ocgt's JSONL log files.</p>
+
+<div style="display:flex;gap:10px;margin:12px 0;flex-wrap:wrap">
+<span class="tag blue">CLI</span>
+<span class="tag blue">Web Dashboard</span>
+<span class="tag green">Desktop Sidebar</span>
+</div>
+
+<h2>Quick Start</h2>
+
+<div class=step>
+<div class=step-n>1</div>
+<div class=step-b>
+<h3>Open a terminal</h3>
+<p>Press <kbd>Win</kbd>, type <code>cmd</code>, hit Enter. Then navigate to the project:</p>
+<pre>C:\Users\...> cd C:\Users\14050\Desktop\opencodego_tokens\ocgt-monitor</pre>
+</div>
+</div>
+
+<div class=step>
+<div class=step-n>2</div>
+<div class=step-b>
+<h3>Gather credentials</h3>
+<p>Log into <a href=https://opencode.ai>opencode.ai</a>, press <kbd>F12</kbd> → Application → Cookies → copy the full cookie string. Also note your Workspace ID (<code>wrk_xxx</code>) from the URL.</p>
+</div>
+</div>
+
+<div class=step>
+<div class=step-n>3</div>
+<div class=step-b>
+<h3>Run setup wizard</h3>
+<pre>C:\Users\...\ocgt-monitor> .\ocgt-monitor config init</pre>
+<p>Follow the prompts: paste cookie, enter workspace ID, skip DeepSeek key if unused.</p>
+</div>
+</div>
+
+<div class=step>
+<div class=step-n>4</div>
+<div class=step-b>
+<h3>Check your quota</h3>
+<pre>C:\Users\...\ocgt-monitor> .\ocgt-monitor quota</pre>
+<p>Shows Rolling / Weekly / Monthly usage with progress bars and reset timers.</p>
+</div>
+</div>
+
+<h2>Commands</h2>
+
+<table>
+<tr><th>Command</th><th>Description</th><th>Requires ocgt?</th></tr>
+<tr><td class=cmd>quota</td><td>Plan usage (Rolling/Weekly/Monthly)</td><td>No</td></tr>
+<tr><td class=cmd>balance</td><td>DeepSeek account balance</td><td>No</td></tr>
+<tr><td class=cmd>history</td><td>7-day token consumption + per-model breakdown</td><td>Yes (logs)</td></tr>
+<tr><td class=cmd>watch</td><td>Live monitor, refreshes every 60s</td><td>Partial</td></tr>
+<tr><td class=cmd>serve</td><td>Full-screen web dashboard (auto-opens browser)</td><td>No</td></tr>
+<tr><td class=cmd>serve --sidebar</td><td>Desktop sidebar panel with auto-hide</td><td>No</td></tr>
+<tr><td class=cmd>config</td><td>View current configuration</td><td>No</td></tr>
+<tr><td class=cmd>config init</td><td>Interactive setup wizard</td><td>No</td></tr>
+<tr><td class=cmd>config list</td><td>List all profiles</td><td>No</td></tr>
+<tr><td class=cmd>config add &lt;name&gt;</td><td>Add a new profile</td><td>No</td></tr>
+<tr><td class=cmd>config use &lt;name&gt;</td><td>Switch active profile</td><td>No</td></tr>
+<tr><td class=cmd>config delete &lt;name&gt;</td><td>Delete a profile</td><td>No</td></tr>
+</table>
+
+<h2>Desktop Sidebar</h2>
+
+<p>The sidebar mode creates a frameless panel on the right edge of your screen. It auto-hides to a 6px strip and slides out when you move your mouse to the edge.</p>
+
+<pre>C:\Users\...\ocgt-monitor> .\ocgt-monitor serve --sidebar</pre>
+
+<div class=card style="font-size:13px;line-height:1.8;font-family:var(--mono);color:var(--sec)">
+  Screen right edge<br>
+  ┌────────────────────────────┬─┐<br>
+  │                            │ │  ← 6px trigger zone<br>
+  │  Panel slides out on hover │ │  (semi-transparent)<br>
+  │  ┌─────────────────────────┘ │<br>
+  │  │  ocgt-monitor    ● 12:30  │<br>
+  │  │  Plan Usage              │<br>
+  │  │  Rolling ██████  65%  2h │<br>
+  │  │  Weekly  ██████  82%  3d │<br>
+  │  │  Today: 104M / 478K /855 │<br>
+  │  │  DeepSeek: $42.50 CNY    │<br>
+  │  │  Models: flash 305M ...  │<br>
+  │  └──────────────────────────┘<br>
+  Mouse leaves → hides after 1.8s
+</div>
+
+<h3>Behavior</h3>
+<table>
+<tr><th>Action</th><th>Reaction</th></tr>
+<tr><td>Mouse enters rightmost 6px</td><td>Panel slides in (0.1s)</td></tr>
+<tr><td>Mouse inside panel</td><td>Stays visible</td></tr>
+<tr><td>Mouse leaves panel</td><td>Hides after 1.8s delay</td></tr>
+<tr><td>Data refresh</td><td>Auto-refreshes every 60s</td></tr>
+</table>
 
 <div class="callout info">
-<strong>这个工具是做什么的？</strong><br>
-ocgt-monitor 大部分功能与 ocgt 无关，它直接调用 OpenCode Go 的接口查询额度。<br>
-只有 <code>history</code>（查看历史消耗）需要读取 ocgt 产生的日志文件。
+<div class=ic>i</div>
+<div style=flex:1>Requires <strong>WebView2 Runtime</strong> (built into Windows 11) and CGO-enabled build. The binary is 7.5MB.</div>
 </div>
 
-<h2>先搞懂几个词</h2>
-<div class=card>
-<p><strong>终端 / 命令行 / cmd</strong> — 那个黑底白字（或蓝底白字）的窗口。按 <kbd>Win</kbd> 输入 <code>cmd</code> 回车就能打开。<br>
-<strong>为什么有 exe 还要敲命令？</strong> ocgt-monitor 有 11 种功能（查额度、看历史、启动网页…），需要在终端里输入不同的命令来告诉它你想做什么。<br>
-<strong>Cookie</strong> — 网站上登录后浏览器存的一个"通行证"，复制出来交给 ocgt-monitor 去查额度。</p>
+<h2>Web Dashboard</h2>
+
+<p>Run <code>serve</code> to open the full-screen browser dashboard. It auto-opens your default browser.</p>
+
+<div class=card style="font-size:13px;line-height:1.8;color:var(--sec)">
+<pre style="border:none;padding:0;margin:0;background:transparent;font-size:13px">
+┌─────────────────────────────────────────────┐
+│ OpenCode Go 监控面板           ● 12:30:00   │
+├─────────────────────────────────────────────┤
+│ Today Input  │ Today Output │ Total │ Req   │
+│   104M       │    478K      │ 105M  │ 855   │
+├────────────────┬────────────────────────────┤
+│ Plan Usage     │ DeepSeek Balance           │
+│ Rolling ██ 65% │ $42.50 CNY                 │
+│ Weekly  ██ 82% │ Granted: $20               │
+│ Monthly  → ∞  │ Topped up: $22.50          │
+├────────────────┴────────────────────────────┤
+│ Top Models (7d)          │ Daily trend 📊   │
+│ flash    305M  3.7k req  │ ██▅▇▇▆▇█ bar    │
+│ pro       45M    428 req │                  │
+│ mimo      22M    196 req │                  │
+└─────────────────────────────────────────────┘
+</pre>
 </div>
 
-<h2>第一步：打开终端</h2>
-<div class=box>
-<div class=tag>Step 1</div>
-<p>按 <kbd>Win</kbd> 键 → 输入 <code>cmd</code> → 回车。<br>
-你会看到一个黑色窗口，上面有 <code>C:\Users\你的用户名></code> 这样的文字。</p>
-</div>
+<h2>Multiple Accounts</h2>
 
-<h2>第二步：进入程序所在文件夹</h2>
-<div class=box>
-<div class=tag>Step 2</div>
-<p>在终端里输入下面这行命令，按回车：</p>
-<pre>C:\Users\你的用户名> cd C:\Users\14050\Desktop\opencodego_tokens\ocgt-monitor</pre>
-<p>回车后提示符变成 <code>C:\Users\...\ocgt-monitor></code> 就对了。</p>
-<div class="callout warn">如果你把 exe 放在了别的位置，这里改成你实际的路径。</div>
-</div>
+<p>Config is stored at <code>C:\Users\&lt;you&gt;\.ocgt-monitor\config.json</code> — each Windows user gets their own isolated config.</p>
 
-<h2>第三步：获取 Cookie 和 Workspace ID</h2>
-<div class=box>
-<div class=tag>Step 3</div>
-<ol>
-<li>打开 Chrome 浏览器，登录 <a href="https://opencode.ai">opencode.ai</a></li>
-<li>按 <kbd>F12</kbd> 打开开发者工具</li>
-<li>点顶部 <strong>Application</strong>（应用）</li>
-<li>左侧找到 <strong>Cookies</strong> → <code>https://opencode.ai</code></li>
-<li>随便点一个 Name，按 <kbd>Ctrl+A</kbd> 全选，<kbd>Ctrl+C</kbd> 复制</li>
-<li>粘贴到记事本里存着</li>
-</ol>
-<p><strong>Workspace ID：</strong> 浏览器地址栏找到 <code>/workspace/wrk_xxxxxxxxxxxx/usage</code>，把 <code>wrk_</code> 开头那串复制下来。</p>
-</div>
+<pre>.\ocgt-monitor config add work       <span class=c># add another account</span>
+.\ocgt-monitor config use work       <span class=c># switch to it</span>
+.\ocgt-monitor config list           <span class=c># list all accounts</span></pre>
 
-<h2>第四步：运行配置向导</h2>
-<div class=box>
-<div class=tag>Step 4</div>
-<p>在终端里输入：</p>
-<pre>C:\Users\...\ocgt-monitor> .\ocgt-monitor config init</pre>
-<p>然后跟着提示回答：</p>
-<ol>
-<li>按回车继续</li>
-<li>粘贴 Cookie，按回车</li>
-<li>输入 Workspace ID，按回车</li>
-<li>DeepSeek API Key 直接回车跳过（除非你有）</li>
-</ol>
-<p>看到"配置已保存"就成功了。</p>
-<div class="callout ok">配置只需要做一次。以后直接查额度就行。</div>
-</div>
-
-<h2>第五步：查套餐额度</h2>
-<div class=box>
-<div class=tag>Step 5</div>
-<pre>C:\Users\...\ocgt-monitor> .\ocgt-monitor quota</pre>
-<p>会显示 Rolling / Weekly / Monthly 三条进度条，告诉你套餐用了多少。</p>
-<div class="callout warn">如果报错，Cookie 可能过期了。重新复制后运行 <code>.\ocgt-monitor config init</code> 更新。</div>
-</div>
-
-<h2>其他常用命令</h2>
-<div class=card>
-<table style="width:100%;border-collapse:collapse;font-size:14px">
-<tr style="border-bottom:1px solid #e5e7eb"><td style="padding:8px 12px"><code>.\ocgt-monitor balance</code></td><td style="padding:8px 12px">查 DeepSeek 余额</td></tr>
-<tr style="border-bottom:1px solid #e5e7eb"><td style="padding:8px 12px"><code>.\ocgt-monitor history</code></td><td style="padding:8px 12px">看最近 7 天 Token 消耗</td></tr>
-<tr style="border-bottom:1px solid #e5e7eb"><td style="padding:8px 12px"><code>.\ocgt-monitor watch</code></td><td style="padding:8px 12px">持续监控（60秒刷新），Ctrl+C 退出</td></tr>
-<tr><td style="padding:8px 12px"><code>.\ocgt-monitor serve</code></td><td style="padding:8px 12px">启动 Web 面板，浏览器打开 http://127.0.0.1:8788</td></tr>
-</table>
-</div>
-
-<h2>分享给朋友</h2>
+<h2>Sharing the Binary</h2>
 <div class="callout err">
-运行下面这个命令清空你的配置，然后把 exe 发过去就行：<br>
-<pre style="margin-top:8px;background:rgba(220,38,38,0.06)">.\ocgt-monitor config delete default</pre>
+<div class=ic>!</div>
+<div style=flex:1>Before sending ocgt-monitor.exe to someone else, clear your config:<br>
+<pre style="margin-top:8px;background:rgba(220,38,38,0.06);border-color:rgba(220,38,38,0.2)">.\ocgt-monitor config delete default</pre>
+The recipient runs <code>config init</code> to set up their own credentials.</div>
 </div>
 
-<h2>常见问题</h2>
-<div class=card><strong>Q: 提示"不是内部或外部命令"？</strong><br>A: 没有先 cd 进文件夹。先运行 <code>cd C:\Users\14050\Desktop\opencodego_tokens\ocgt-monitor</code>。</div>
-<div class=card><strong>Q: PowerShell 报错"无法识别"？</strong><br>A: 要在 exe 前面加 <code>.\</code>，写成 <code>.\ocgt-monitor quota</code>。</div>
-<div class=card><strong>Q: 配置好了但查 quota 报错？</strong><br>A: Cookie 过期。重新登录 opencode.ai 复制，运行 <code>.\ocgt-monitor config init</code> 更新。</div>
-<div class=card><strong>Q: history 无数据？</strong><br>A: 没用 ocgt 的话就没有历史日志。但 quota 和 balance 不受影响。</div>
+<h2>Environment Variables</h2>
+<p>Env vars take precedence over the config file — useful for quick testing:</p>
+<pre><span class=c>:: temporary (current terminal)</span>
+set OPENCODE_GO_AUTH_COOKIE=session=xxx;.....
+set OPENCODE_GO_WORKSPACE_ID=wrk_xxxxxxxxxxxx</pre>
 
-<div class=footer>ocgt-monitor &mdash; Go 1.22 &bull; 零外部依赖 &bull; 2026-06-02</div>
+<h2>Architecture</h2>
+<div class=card>
+<pre style="border:none;padding:0;margin:0;background:transparent;font-size:13px;line-height:1.8">
+<span class=c>Data sources</span>
+OpenCode Go RPC (_server)    ───→  quota (plan usage)
+DeepSeek API (/user/balance) ───→  balance (pay-as-you-go)
+ocgt JSONL logs (~/.ocgt/)   ───→  history (token consumption)
 
+<span class=c>UI modes</span>
+CLI   →  terminal commands
+Web   →  browser at http://127.0.0.1:8788
+Panel →  desktop sidebar (--sidebar)
+</pre>
+</div>
+
+<h2>Project Structure</h2>
+<pre>ocgt-monitor/
+  main.go                  <span class=c>CLI entry point (11 commands)</span>
+  build.bat                <span class=c>Build script (CGO_ENABLED=1)</span>
+  go.mod                   <span class=c>Module: Go 1.22 + 2 deps</span>
+  internal/
+    sidebar/sidebar.go     <span class=c>Desktop panel (WebView2 + auto-hide)</span>
+    web/
+      server.go            <span class=c>HTTP server (5 API endpoints)</span>
+      static/
+        index.html         <span class=c>Full-screen dashboard</span>
+        sidebar.html       <span class=c>Sidebar panel UI</span>
+        help.html          <span class=c>This document</span>
+    quota/                 <span class=c>OpenCode Go + DeepSeek providers</span>
+    config/config.go       <span class=c>Multi-profile config management</span>
+    formatter/format.go    <span class=c>Display formatting (progress bars, numbers)</span>
+    storage/reader.go      <span class=c>JSONL log reader + daily/model stats</span></pre>
+
+<h2>FAQ</h2>
+
+<div class=card-grid>
+<div class=card><strong>No credentials configured?</strong><br><span style=font-size:13px;color:var(--sec)>Run <code>config init</code> to set them up.</span></div>
+<div class=card><strong>API call failed?</strong><br><span style=font-size:13px;color:var(--sec)>Cookie expired. Re-copy from opencode.ai and run <code>config init</code>.</span></div>
+<div class=card><strong>History empty?</strong><br><span style=font-size:13px;color:var(--sec)>Only available if ocgt is running (reads its JSONL logs). Quota and balance work independently.</span></div>
+<div class=card><strong>Need to update a field?</strong><br><span style=font-size:13px;color:var(--sec)>Re-run <code>config init</code> — existing values shown as defaults; press Enter to keep.</span></div>
+<div class=card><strong>Sidebar doesn't appear?</strong><br><span style=font-size:13px;color:var(--sec)>Ensure WebView2 Runtime is installed (built into Win11). Build with <code>CGO_ENABLED=1</code> and GCC in PATH.</span></div>
+<div class=card><strong>Go or GCC not installed?</strong><br><span style=font-size:13px;color:var(--sec)>The binary is pre-built — you only need Go/GCC if you want to rebuild from source.</span></div>
+</div>
+
+<div class=footer>
+ocgt-monitor &mdash; Go 1.22 &bull; WebView2 &bull; Zero external runtime deps &bull; 2026-06-02
+</div>
+
+</div>
 </body>
 </html>
