@@ -16,3 +16,11 @@
 - **文件:** `main.go`, `internal/web/server.go`, `internal/web/static/help.html`
 - **原因:** ocgt 默认日志目录是 ~/.ocgt/logs/ 而非 ~/.ocgt/history/
 - **修复:** ocgtLogDir 自动检测 logs/history/log 三个目录，帮助文档删除了误导性描述
+
+## 2026-06-02 16:10: 桌面面板化改造
+- **文件:** `internal/web/static/index.html`, `internal/web/server.go`, `main.go`
+- **原因:** 让 Web 面板更像桌面应用，降低终端使用门槛
+- **变更:**
+  - index.html 改为全屏面板布局，顶部状态栏+今日统计卡片+额度+模型表+趋势图
+  - server.go 新增 /api/models 端点返回各模型消耗
+  - cmdServe 自动打开浏览器

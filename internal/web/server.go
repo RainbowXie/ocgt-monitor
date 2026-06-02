@@ -30,7 +30,6 @@ func NewServer(q *quota.OpenCodeGoQuerier) *Server {
 func ocgtLogDir() string {
 	h, err := os.UserHomeDir()
 	if err != nil { h = os.Getenv("USERPROFILE") }
-	// ocgt 默认日志目录是 ~/.ocgt/logs/，也兼容旧版 ~/.ocgt/history/
 	for _, dir := range []string{"logs", "history", "log"} {
 		p := filepath.Join(h, ".ocgt", dir)
 		if info, err := os.Stat(p); err == nil && info.IsDir() { return p }
@@ -41,16 +40,19 @@ func ocgtLogDir() string {
 func (s *Server) Start(addr string) error {
 	if addr != "" { s.addr = addr }
 	mux := http.NewServeMux()
+
 	mux.HandleFunc("/api/quota", func(w http.ResponseWriter, r *http.Request) {
 		d, e := s.querier.FetchQuota()
 		if e != nil { writeJSON(w, 200, map[string]any{"success": false, "error": e.Error()}); return }
 		writeJSON(w, 200, map[string]any{"success": true, "data": d})
 	})
+
 	mux.HandleFunc("/api/balance", func(w http.ResponseWriter, r *http.Request) {
 		d, e := s.deepseek.FetchBalance()
 		if e != nil { writeJSON(w, 200, map[string]any{"success": false, "error": e.Error()}); return }
 		writeJSON(w, 200, map[string]any{"success": true, "data": d})
 	})
+
 	mux.HandleFunc("/api/history", func(w http.ResponseWriter, r *http.Request) {
 		logs, e := storage.ReadOCGTLogs(ocgtLogDir())
 		if e != nil { writeJSON(w, 200, map[string]any{"success": false, "error": e.Error()}); return }
@@ -61,7 +63,20 @@ func (s *Server) Start(addr string) error {
 		sort.Slice(list, func(i, j int) bool { return list[i].Date < list[j].Date })
 		writeJSON(w, 200, map[string]any{"success": true, "data": list})
 	})
+
+	mux.HandleFunc("/api/models", func(w http.ResponseWriter, r *http.Request) {
+		logs, e := storage.ReadOCGTLogs(ocgtLogDir())
+		if e != nil { writeJSON(w, 200, map[string]any{"success": false, "error": e.Error()}); return }
+		models := storage.CalculateModelStats(logs, 7)
+		type MStat struct { Model string `json:"model"`; InputTokens int `json:"input_tokens"`; OutputTokens int `json:"output_tokens"`; TotalTokens int `json:"total_tokens"`; RequestCount int `json:"request_count"` }
+		var list []MStat
+		for _, s := range models { list = append(list, MStat{s.Model, s.InputTokens, s.OutputTokens, s.TotalTokens, s.RequestCount}) }
+		sort.Slice(list, func(i, j int) bool { return list[i].TotalTokens > list[j].TotalTokens })
+		writeJSON(w, 200, map[string]any{"success": true, "data": list})
+	})
+
 	mux.HandleFunc("/api/health", func(w http.ResponseWriter, r *http.Request) { writeJSON(w, 200, map[string]any{"status": "ok", "time": time.Now()}) })
+
 	sub, _ := fs.Sub(webAssets, "static")
 	mux.Handle("/", http.FileServer(http.FS(sub)))
 	return http.ListenAndServe(s.addr, mux)

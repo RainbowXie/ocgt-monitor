@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -188,6 +189,8 @@ func cmdServe() {
 	fmt.Println("  打开浏览器访问:")
 	fmt.Println("  -> http://127.0.0.1:8788")
 	fmt.Println("========================================")
+	// 自动打开浏览器
+	_ = exec.Command("cmd", "/c", "start", "http://127.0.0.1:8788").Start()
 	if err := srv.Start(":8788"); err != nil { fmt.Fprintf(os.Stderr, "服务器启动失败: %v\n", err); os.Exit(1) }
 }
 
