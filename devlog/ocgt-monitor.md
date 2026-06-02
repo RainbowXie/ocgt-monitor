@@ -68,3 +68,8 @@
 - **刷新:** 60s → 5s，数据更实时
 - **隐藏终端:** 启动后自动隐藏控制台窗口（GetConsoleWindow + SW_HIDE）
 - **关闭按钮:** 标题栏右侧 ✕ 按钮 → /api/quit → os.Exit(0)
+
+## 2026-06-02 23:55: 修复 CalculateDailyStats 日期字段为空
+- **根因:** 精简代码时遗漏了 `s.Date = k` 赋值，导致 /api/history 返回的 date 始终为空字符串
+- **影响:** 侧边栏"今日消耗"区域日期不显示
+- **修复:** reader.go:72 补上 `s.Date = k`

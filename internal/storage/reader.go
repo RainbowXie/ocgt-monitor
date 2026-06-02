@@ -69,7 +69,7 @@ func CalculateDailyStats(logs []OCGTLogEntry, days int) map[string]TokenStatsDai
 	for _, l := range logs {
 		if l.Time.Before(cutoff) || l.Error != "" { continue }
 		k := l.Time.Format("2006-01-02")
-		s := r[k]; s.InputTokens += l.InputTokens; s.OutputTokens += l.OutputTokens
+		s := r[k]; s.Date = k; s.InputTokens += l.InputTokens; s.OutputTokens += l.OutputTokens
 		s.TotalTokens += l.TotalTokens; s.RequestCount++; r[k] = s
 	}
 	return r
