@@ -3,6 +3,7 @@ package web
 import (
 	"embed"
 	"encoding/json"
+	"fmt"
 	"io/fs"
 	"net/http"
 	"os"
@@ -67,7 +68,12 @@ func (s *Server) Start(addr string) error {
 	mux.HandleFunc("/api/models", func(w http.ResponseWriter, r *http.Request) {
 		logs, e := storage.ReadOCGTLogs(ocgtLogDir())
 		if e != nil { writeJSON(w, 200, map[string]any{"success": false, "error": e.Error()}); return }
-		models := storage.CalculateModelStats(logs, 7)
+		days := 7
+		r.ParseForm()
+		if d := r.Form.Get("days"); d != "" {
+			if n, err := fmt.Sscanf(d, "%d", &days); err != nil || n != 1 || days < 1 { days = 7 }
+		}
+		models := storage.CalculateModelStats(logs, days)
 		type MStat struct { Model string `json:"model"`; InputTokens int `json:"input_tokens"`; OutputTokens int `json:"output_tokens"`; TotalTokens int `json:"total_tokens"`; RequestCount int `json:"request_count"` }
 		var list []MStat
 		for _, s := range models { list = append(list, MStat{s.Model, s.InputTokens, s.OutputTokens, s.TotalTokens, s.RequestCount}) }

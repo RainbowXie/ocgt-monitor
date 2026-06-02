@@ -7,53 +7,33 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{
-  font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Inter','Noto Sans SC',sans-serif;
-  background:linear-gradient(180deg,#faf5ff 0%,#f0f0ff 40%,#fef3f2 100%);
-  width:300px;overflow:hidden;user-select:none;color:#1a1a2e;
-  -webkit-font-smoothing:antialiased
+font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Inter','Noto Sans SC',sans-serif;
+background:linear-gradient(180deg,#faf5ff 0%,#f0f0ff 40%,#fef3f2 100%);
+width:300px;overflow:hidden;user-select:none;color:#1a1a2e;-webkit-font-smoothing:antialiased
 }
 .panel{display:flex;flex-direction:column;height:100vh}
-.hdr{
-  padding:18px 18px 12px;display:flex;align-items:center;justify-content:space-between;
-  flex-shrink:0;
-  background:rgba(255,255,255,0.6);backdrop-filter:blur(20px);
-  border-bottom:1px solid rgba(0,0,0,0.04)
-}
+.hdr{padding:18px 18px 12px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:rgba(255,255,255,0.6);backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,0,0,0.04)}
 .hl{display:flex;align-items:center;gap:10px}
-.ic{
-  width:28px;height:28px;border-radius:8px;
-  background:linear-gradient(135deg,#6366f1,#a855f7);
-  display:flex;align-items:center;justify-content:center;
-  color:#fff;font-size:12px;font-weight:700;box-shadow:0 2px 8px rgba(99,102,241,0.3)
-}
+.ic{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#6366f1,#a855f7);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;box-shadow:0 2px 8px rgba(99,102,241,0.3)}
 .hl h1{font-size:15px;font-weight:700;letter-spacing:-.3px;background:linear-gradient(135deg,#6366f1,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.hr{display:flex;align-items:center;gap:8px}
+.hr{display:flex;align-items:center;gap:6px}
 .sd{width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,0.2)}
 .sd.er{background:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,0.2)}
 .ht{font-size:11px;color:#94a3b8;font-feature-settings:"tnum";font-weight:500}
-.qb{
-  width:24px;height:24px;border-radius:7px;border:none;
-  background:rgba(0,0,0,0.04);cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  font-size:13px;color:#94a3b8;transition:all .2s
-}
+.qb{width:24px;height:24px;border-radius:7px;border:none;background:rgba(0,0,0,0.04);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;color:#94a3b8;transition:all .2s}
 .qb:hover{background:rgba(239,68,68,0.15);color:#ef4444}
-
 .c{flex:1;overflow-y:auto;padding:12px 16px 20px;scrollbar-width:thin}
 .c::-webkit-scrollbar{width:3px}
 .c::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.08);border-radius:10px}
-
 .se{margin-bottom:22px}
 .sh{display:flex;align-items:center;gap:8px;margin-bottom:12px}
 .st{font-size:10px;font-weight:700;color:#94a3b8;letter-spacing:.6px;text-transform:uppercase}
 .st .ac{display:inline-block;width:3px;height:3px;border-radius:50%;background:#c084fc;margin-right:6px;vertical-align:middle}
-
-/* Quota Cards - redesigned */
-.qc{
-  background:rgba(255,255,255,0.7);backdrop-filter:blur(10px);
-  border-radius:14px;padding:12px 14px 10px;margin-bottom:8px;
-  border:1px solid rgba(255,255,255,0.8);box-shadow:0 1px 4px rgba(0,0,0,0.02)
-}
+.filter{display:flex;gap:4px;background:rgba(0,0,0,0.04);border-radius:7px;padding:2px}
+.fl{padding:3px 10px;font-size:10px;font-weight:600;border-radius:5px;cursor:pointer;color:#94a3b8;transition:all .2s}
+.fl-on{background:rgba(255,255,255,0.9);color:#6366f1;box-shadow:0 1px 3px rgba(0,0,0,0.08)}
+.fl:hover{color:#6366f1}
+.qc{background:rgba(255,255,255,0.7);backdrop-filter:blur(10px);border-radius:14px;padding:12px 14px 10px;margin-bottom:8px;border:1px solid rgba(255,255,255,0.8);box-shadow:0 1px 4px rgba(0,0,0,0.02)}
 .qt{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
 .ql{font-size:12px;font-weight:600;color:#1a1a2e}
 .qr{display:flex;align-items:center;gap:8px;font-size:11px;color:#94a3b8;font-feature-settings:"tnum";font-weight:500}
@@ -64,43 +44,22 @@ body{
 .qf.g1{background:linear-gradient(90deg,#6366f1,#a855f7,#ec4899)}
 .qf.g2{background:linear-gradient(90deg,#f59e0b,#ef4444,#ec4899)}
 .qf.g3{background:linear-gradient(90deg,#06b6d4,#3b82f6,#6366f1)}
-
-/* Stats Grid */
 .sg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.sc{
-  background:rgba(255,255,255,0.7);backdrop-filter:blur(10px);
-  border-radius:14px;padding:12px 8px;text-align:center;
-  border:1px solid rgba(255,255,255,0.8);box-shadow:0 1px 4px rgba(0,0,0,0.02)
-}
+.sc{background:rgba(255,255,255,0.7);backdrop-filter:blur(10px);border-radius:14px;padding:12px 8px;text-align:center;border:1px solid rgba(255,255,255,0.8);box-shadow:0 1px 4px rgba(0,0,0,0.02)}
 .sc .nm{font-size:22px;font-weight:800;letter-spacing:-.5px;line-height:1.2;font-feature-settings:"tnum";margin-bottom:2px}
 .sc .nm.g1{background:linear-gradient(135deg,#6366f1,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .sc .nm.g2{background:linear-gradient(135deg,#f59e0b,#ef4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .sc .nm.g3{background:linear-gradient(135deg,#22c55e,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .sc .nm.g4{background:linear-gradient(135deg,#a855f7,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .sc .lb{font-size:10px;color:#94a3b8;font-weight:500;letter-spacing:.3px}
-
-/* Balance */
-.bc2{
-  background:rgba(255,255,255,0.7);backdrop-filter:blur(10px);
-  border-radius:14px;padding:14px;
-  border:1px solid rgba(255,255,255,0.8);box-shadow:0 1px 4px rgba(0,0,0,0.02)
-}
+.bc2{background:rgba(255,255,255,0.7);backdrop-filter:blur(10px);border-radius:14px;padding:14px;border:1px solid rgba(255,255,255,0.8);box-shadow:0 1px 4px rgba(0,0,0,0.02)}
 .br{display:flex;align-items:center;justify-content:space-between;padding:4px 0}
 .bl{font-size:12px;color:#94a3b8;font-weight:500}
 .bv{font-size:24px;font-weight:800;font-feature-settings:"tnum";background:linear-gradient(135deg,#22c55e,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .bc{font-size:11px;color:#94a3b8;font-weight:400}
 .bs{font-size:11px;color:#94a3b8;display:flex;gap:16px;justify-content:flex-end;margin-top:4px;font-weight:500}
-
-/* Models */
-.mc{
-  background:rgba(255,255,255,0.7);backdrop-filter:blur(10px);
-  border-radius:14px;padding:4px;
-  border:1px solid rgba(255,255,255,0.8);box-shadow:0 1px 4px rgba(0,0,0,0.02)
-}
-.mi{
-  display:flex;align-items:center;gap:10px;padding:9px 10px;
-  border-radius:10px;margin:2px 0
-}
+.mc{background:rgba(255,255,255,0.7);backdrop-filter:blur(10px);border-radius:14px;padding:4px;border:1px solid rgba(255,255,255,0.8);box-shadow:0 1px 4px rgba(0,0,0,0.02)}
+.mi{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;margin:2px 0}
 .mi:nth-child(1){background:linear-gradient(90deg,rgba(99,102,241,0.1),transparent)}
 .mi:nth-child(2){background:linear-gradient(90deg,rgba(245,158,11,0.1),transparent)}
 .mi:nth-child(3){background:linear-gradient(90deg,rgba(34,197,94,0.1),transparent)}
@@ -110,12 +69,8 @@ body{
 .mdot{width:6px;height:6px;border-radius:50%;flex-shrink:0;box-shadow:0 0 6px currentColor}
 .mn{flex:1;font-size:12px;font-weight:600;color:#1a1a2e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mt{font-size:13px;font-weight:700;font-feature-settings:"tnum";color:#1a1a2e;flex-shrink:0}
-
 .emp{padding:24px 0;text-align:center;color:#94a3b8;font-size:13px;font-weight:500}
-.er{
-  color:#ef4444;font-size:12px;padding:10px 14px;text-align:center;
-  background:rgba(239,68,68,0.08);border-radius:10px;font-weight:500
-}
+.er{color:#ef4444;font-size:12px;padding:10px 14px;text-align:center;background:rgba(239,68,68,0.08);border-radius:10px;font-weight:500}
 .hide{display:none}
 </style>
 </head>
@@ -123,10 +78,7 @@ body{
 <div class=panel>
 <div class=hdr>
 <div class=hl><div class=ic>OG</div><h1>ocgt-monitor</h1></div>
-<div class=hr>
-<span class=sd id=sd></span><span class=ht id=ht>--:--</span>
-<button class=qb id=quitBtn title="关闭程序">✕</button>
-</div>
+<div class=hr><span class=sd id=sd></span><span class=ht id=ht>--:--</span><button class=qb id=quitBtn title=关闭>✕</button></div>
 </div>
 <div class=c>
 <div class=se id=quotaSec>
@@ -147,17 +99,23 @@ body{
 <div id=balLoad><div class=bc2><div class=emp>--</div></div></div>
 </div>
 <div class=se id=modelSec>
-<div class=sh><span class=st><span class=ac></span>模型消耗</span></div>
+<div class=sh><span class=st><span class=ac></span>模型消耗</span><span class=filter id=modelFilter><span class="fl fl-on" data-days=1>今日</span><span class=fl data-days=7>7日</span></span></div>
 <div class=emp id=modelLoad>加载中...</div>
 </div>
 </div>
 </div>
 <script>
+var mDays=1;
+
 function n(n){if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return(n/1e3).toFixed(1)+'K';return String(n)}
 
-document.getElementById('quitBtn').addEventListener('click',function(){
-  fetch('/api/quit').then(function(){setTimeout(function(){window.close()},200)})
-})
+document.getElementById('quitBtn').addEventListener('click',function(){fetch('/api/quit').then(function(){setTimeout(function(){window.close()},200)})})
+
+document.getElementById('modelFilter').addEventListener('click',function(e){
+var t=e.target;
+if(t.classList.contains('fl')){
+document.querySelectorAll('.fl').forEach(function(f){f.classList.remove('fl-on')});
+t.classList.add('fl-on');mDays=parseInt(t.getAttribute('data-days'));fm()}})
 
 async function fa(){
 try{
@@ -196,7 +154,7 @@ document.getElementById('tdReq').textContent=t.request_count||0;
 }
 
 async function fm(){
-var r=await(await fetch('/api/models')).json(),e=document.getElementById('modelLoad');
+var r=await(await fetch('/api/models?days='+mDays)).json(),e=document.getElementById('modelLoad');
 if(!r.success||!r.data||!r.data.length){e.innerHTML='<div class=emp>暂无数据</div>';return}
 var cl={'deepseek':'#6366f1','mimo':'#22c55e','glm':'#f59e0b','qwen':'#06b6d4','kimi':'#a855f7','minimax':'#ec4899'};
 function cc(n){for(var k in cl)if(n.includes(k))return cl[k];return'#94a3b8'}
