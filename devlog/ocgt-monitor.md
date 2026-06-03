@@ -98,12 +98,19 @@
 
 ## 2026-06-03 03:25: 模型霓虹呼吸灯增强 + 名称左对齐修正
 - **文件:** `internal/web/static/sidebar.html`
-- **呼吸灯重做（参考按钮样例）:**
-  - 圆点 6px→8px + 实心 `background: currentColor`（霓虹管芯）
-  - 白色半透明边框模拟内发光（`border: 1px solid rgba(255,255,255,0.5)`）
-  - 多层 box-shadow 扩散发光（2px/6px/14px → 4px/10px/22px/40px）
-  - 周期 2.4s→2s，节奏更快
-- **名称左对齐:** `.mi` gap 6px→4px，左内边距 8px→5px，文字起始更靠左
+- **呼吸灯统一绿色:**
+  - 圆点 8px + 实心 `background:#22c55e`（移除 per-model 颜色）
+  - 绿色多层 box-shadow 呼吸动画（2px/6px/14px → 4px/10px/22px/40px）
+  - `currentColor` → 硬编码 `#22c55e`，所有模型共用绿色霓虹
+- **模型卡片仿按钮样例:**
+  - 移除静态 `.mi:nth-child(n)` 渐变背景
+  - 每行动态 `--cr` RGB 变量驱动：`border`, `box-shadow`, `background`
+  - `rgba(var(--cr),X)` 实现各模型自适应颜色
+  - hover 增强 glow（仿按钮的 `0 0 8px + 0 0 20px` 双层发光）
+- **名称左对齐:**
+  - gap 4px→2px，`.mdot {margin-right:2px}`，padding-left 5px→4px
+  - `.mn {text-align:left}` 显式声明
+  - 文字起始距左侧 14px（之前 17px）
 - **数字:** 去除 M/K 缩写，全部显示完整数字加逗号，字体 13px 适配百亿级
 - **筛选:** 新增"30日"按钮 + "自定"日期区间选择器
 - **API:** /api/models?from=YYYY-MM-DD&to=YYYY-MM-DD 支持
