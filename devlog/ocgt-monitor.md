@@ -1,3 +1,10 @@
+## 2026-06-03 17:20: 重新构建 ocgt-monitor.exe
+- **文件:** `ocgt-monitor.exe`（构建产物）
+- **原因:** 整理项目时删除了旧二进制，重新构建完整版本
+- **构建:** `CGO_ENABLED=1 go build -ldflags="-s -w"`，支持侧边栏模式
+- **分发说明:** 单 exe 即可运行，无需安装 Go 或额外运行时。侧边栏模式需 WebView2 Runtime（Win11 自带）
+- **影响范围:** 仅构建产物，gitignored
+
 ## 2026-06-03 16:00: 重写使用说明文档（欧美传统美学）
 - **文件:** `internal/web/static/help.html`
 - **设计:** 温暖奶油底色 + Georgia 衬线标题 + Inter 无衬线正文，传统印刷排版风格
