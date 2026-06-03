@@ -311,9 +311,8 @@ details table{margin:8px 0}
 <details open>
 <summary>分享给他人 <span class=en>Sharing the Binary</span></summary>
 <div class=dw>
-<div class="cl err">
-<span class=ic>!</span><div>发送 exe 前请清空你的配置，以免泄露凭证：<span class=en>Clear your config before sharing to avoid leaking credentials.</span>
-<pre>ocgt-monitor config delete default</pre>
+<div class="cl info">
+<span class=ic>i</span><div>exe 本身不含任何配置，直接发送即可。配置存储在用户目录 <code>C:\Users\&lt;用户名&gt;\.ocgt-monitor\config.json</code>，每台机器独立。<span class=en>The exe contains no configuration data &mdash; it is stored locally per user.</span>
 接收方运行 <code>config init</code> 配置自己的凭证即可使用。<span class=en>The recipient runs config init to set up their own credentials.</span>
 </div>
 </div>
