@@ -131,6 +131,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Inter','Noto
 <div class=qr><span class=ql>Rolling</span><div class=qbw><div class="qf g1" id=qfR style=width:0%></div></div><span class="qp g1" id=qpR>--</span><span class=qtm id=qtR></span></div>
 <div class=qr><span class=ql>Weekly</span><div class=qbw><div class="qf g2" id=qfW style=width:0%></div></div><span class="qp g2" id=qpW>--</span><span class=qtm id=qtW></span></div>
 <div class=qr id=qrM><span class=ql>Monthly</span><div class=qbw id=qbwM><div class="qf g3" id=qfM style=width:0%></div></div><span class="qp g3" id=qpM>--</span><span class=qtm id=qtM></span></div>
+<div class="hide" id=quotaErr style="font-size:11px;color:var(--red);padding:4px 0;text-align:center"></div>
 </div>
 <div class=st>今日消耗</div>
 <div class=tg id=todayGrid>
@@ -202,9 +203,10 @@ var p=document.getElementById(tid);if(p){p.textContent=pct+'%';var c=bg(pct);p.c
 var r=document.getElementById(rid);if(r)r.textContent=rt}
 sq('qfR',d.rolling.usage_percent,'qpR','qtR',d.rolling.reset_display,'g1');
 sq('qfW',d.weekly.usage_percent,'qpW','qtW',d.weekly.reset_display,'g2');
-if(d.monthly){document.getElementById('qbwM').style.display='block';sq('qfM',d.monthly.usage_percent,'qpM','qtM',d.monthly.reset_display,'g3')}
-else{document.getElementById('qbwM').style.display='none';var pm=document.getElementById('qpM');if(pm){pm.textContent='∞';pm.className='qp g3'}var tm=document.getElementById('qtM');if(tm)tm.textContent='无限'}
-}catch(e){document.getElementById('quotaLoad').innerHTML='<div class=er>'+e.message+'</div>'}}
+if(d.monthly){var _m=document.getElementById('qbwM');if(_m)_m.style.display='block';sq('qfM',d.monthly.usage_percent,'qpM','qtM',d.monthly.reset_display,'g3')}
+else{var _m=document.getElementById('qbwM');if(_m)_m.style.display='none';var pm=document.getElementById('qpM');if(pm){pm.textContent='∞';pm.className='qp g3'}var tm=document.getElementById('qtM');if(tm)tm.textContent='无限'}
+var _e=document.getElementById('quotaErr');if(_e)_e.classList.add('hide')
+}catch(e){var _e=document.getElementById('quotaErr');if(_e){_e.textContent=e.message;_e.classList.remove('hide')}}}
 /* balance */
 async function fb(){try{var r=await(await fetch('/api/balance')).json();if(!r.success)throw new Error(r.error);
 document.getElementById('balanceSec').classList.remove('hide');var d=r.data,e=document.getElementById('balLoad');

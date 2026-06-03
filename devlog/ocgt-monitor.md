@@ -1,3 +1,12 @@
+## 2026-06-03 18:00: 修复配额错误处理导致 DOM 丢失崩溃
+- **文件:** `internal/web/static/sidebar.html`
+- **根因:** `fq()` 失败时用 `innerHTML` 替换配额区域，DOM 元素丢失；后续请求成功时访问不存在的元素抛空指针
+- **修复:** 
+  - 改用独立 `#quotaErr` 元素显示错误，不破坏原有 DOM
+  - `qbwM.style` 增加 null 安全检查
+  - 成功时自动隐藏错误
+- **影响范围:** 仅 `fq()` 函数，无功能变化
+
 ## 2026-06-03 17:50: 安装 GitHub CLI + 生成 README.md
 - **文件:** `README.md`（新增），`.gitignore`（完善）
 - **GitHub CLI:** winget 安装，已加入系统 PATH
