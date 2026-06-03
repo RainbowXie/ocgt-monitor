@@ -21,7 +21,7 @@ var (
 )
 
 const (
-	panelWidth    = 280
+	panelWidth    = 360
 	panelHeight   = 370
 	// panelY is dynamic via state.PanelY
 	triggerZonePx = 15
