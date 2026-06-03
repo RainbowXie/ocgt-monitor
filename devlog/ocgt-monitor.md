@@ -1,3 +1,9 @@
+## 2026-06-03 17:50: 安装 GitHub CLI + 生成 README.md
+- **文件:** `README.md`（新增），`.gitignore`（完善）
+- **GitHub CLI:** winget 安装，已加入系统 PATH
+- **README 风格:** 中英双语，项目徽章 + 功能表格 + 使用说明 + 项目结构
+- **影响范围:** 无功能影响，仅文档
+
 ## 2026-06-03 17:25: 修复 help.html 配置误导
 - **文件:** `internal/web/static/help.html`
 - **原因:** 之前错误地提示"发送 exe 前需要清空配置"，实际上配置文件在用户目录，与 exe 无关
