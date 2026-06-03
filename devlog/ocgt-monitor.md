@@ -1,3 +1,8 @@
+## 2026-06-03 15:45: 刷新频率 3s→2s
+- **文件:** `internal/web/static/sidebar.html`
+- **原因:** 用户希望数据更实时，API 并行请求，2s 对外部 API 依然友好
+- **影响范围:** JS `setInterval` 参数 3000→2000，其余逻辑不变
+
 ## 2026-06-03 15:40: 柱状图精细化：细柱+柔色+圆角优化
 - **文件:** `internal/web/static/sidebar.html`
 - **柱体:** 46px → 26px 固定宽度，`flex-shrink:0` 防止挤压，`justify-content:center` 居中排列

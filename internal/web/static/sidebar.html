@@ -248,7 +248,7 @@ h+='</div></div>';e.innerHTML=h})}
 /* main loop 3s */
 async function fa(){var ok=true;try{await Promise.all([fq(),fb(),fh(),fm().catch(function(){})]);renderBar(hData);renderDonut()}catch(e){ok=false}
 var sd=document.getElementById('sd'),ht=document.getElementById('ht');sd.className=ok?'sd':'sd er';ht.textContent=new Date().toLocaleTimeString();ht.className=ok?'ht':'ht er';if(!ok)ht.textContent+=' ✕'}
-fa();setInterval(fa,3000)
+fa();setInterval(fa,2000)
 </script>
 </body>
 </html>
