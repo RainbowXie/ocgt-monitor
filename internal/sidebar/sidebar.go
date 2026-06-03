@@ -21,7 +21,7 @@ var (
 )
 
 const (
-	panelWidth    = 300
+	panelWidth    = 270
 	triggerZonePx = 15
 	animSteps     = 15
 	animStepMs    = 6
