@@ -73,6 +73,7 @@ type Sidebar struct {
 	shown     bool
 	hidden    bool
 	animating bool
+	lastY     int
 }
 
 func New(port int) *Sidebar {
@@ -111,6 +112,7 @@ func New(port int) *Sidebar {
 		screenW: screenW,
 		hiddenX: hiddenX, shownX: shownX,
 		hidden: true,
+		lastY: state.PanelY,
 	}
 }
 
@@ -169,6 +171,15 @@ func (s *Sidebar) edgeLoop() {
 	var topMostTicker int
 
 	for range ticker.C {
+		// Real-time drag: move window when PanelY changes
+		if state.PanelY != s.lastY {
+			s.lastY = state.PanelY
+			x, _, _, _ := s.getWindowRect()
+			s.wv.Dispatch(func() {
+				procSetWindowPos.Call(s.hwnd, hwndTopMost, uintptr(x), uintptr(state.PanelY),
+					panelWidth, panelHeight, swpNoActivate)
+			})
+		}
 		if state.Pinned {
 			if !s.shown {
 				s.shown = true
