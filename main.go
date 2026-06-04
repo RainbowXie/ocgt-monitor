@@ -69,7 +69,10 @@ func readLineDefault(label, defaultVal string) string {
 }
 
 func main() {
-	if len(os.Args) < 2 { printUsage(); return }
+	if len(os.Args) < 2 {
+		startSidebar()
+		return
+	}
 	switch os.Args[1] {
 	case "quota": cmdQuota()
 	case "balance": cmdBalance()
@@ -84,6 +87,20 @@ case "version", "-v", "--version": fmt.Println("ocgt-monitor v" + version)
 		printUsage()
 		os.Exit(1)
 	}
+}
+
+func startSidebar() {
+	q := makeQuotaQuerier()
+	srv := web.NewServer(q)
+	go func() {
+		if err := srv.Start(":" + ocgtPort()); err != nil {
+			fmt.Fprintf(os.Stderr, "服务器启动失败: %v\n", err)
+			os.Exit(1)
+		}
+	}()
+	time.Sleep(500 * time.Millisecond)
+	sb := sidebar.New(8788)
+	sb.Run()
 }
 
 func cmdQuota() {
@@ -184,24 +201,18 @@ func cmdWatch() {
 }
 
 func cmdServe() {
-	q := makeQuotaQuerier()
-	srv := web.NewServer(q)
-
-	// Start HTTP server in background (required by sidebar WebView2)
-	go func() {
-		if err := srv.Start(":" + ocgtPort()); err != nil { fmt.Fprintf(os.Stderr, "服务器启动失败: %v\n", err); os.Exit(1) }
-	}()
-
 	// Sidebar mode: desktop panel with auto-hide
 	if len(os.Args) > 2 && os.Args[2] == "--sidebar" {
-		fmt.Println("启动侧边栏...")
-		time.Sleep(500 * time.Millisecond)
-		sb := sidebar.New(8788)
-		sb.Run()
+		startSidebar()
 		return
 	}
 
 	// Headless mode: just start the API server (for CLI/curl access)
+	q := makeQuotaQuerier()
+	srv := web.NewServer(q)
+	go func() {
+		if err := srv.Start(":" + ocgtPort()); err != nil { fmt.Fprintf(os.Stderr, "服务器启动失败: %v\n", err); os.Exit(1) }
+	}()
 	fmt.Println("API 服务已启动: http://127.0.0.1:8788")
 	select {}
 }
@@ -219,7 +230,9 @@ func showConfigHint() {
 func printUsage() {
 	fmt.Println("ocgt-monitor — OpenCode Go 额度 & Token 监控工具")
 	fmt.Println()
-	fmt.Println("常用命令:")
+	fmt.Println("双击 exe 直接启动桌面侧边栏（无需命令）")
+	fmt.Println()
+	fmt.Println("命令行用法:")
 	fmt.Println("  config                查看当前配置")
 	fmt.Println("  config init           交互式配置向导")
 	fmt.Println("  config list           列出所有账户")

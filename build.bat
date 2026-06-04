@@ -7,7 +7,10 @@ set CGO_ENABLED=1
 :: Set GCC path (MSYS2 MinGW64)
 set "PATH=C:\msys64\mingw64\bin;%PATH%"
 
-:: Build
-go build -ldflags="-s -w" -o ocgt-monitor.exe .
+:: --- CLI version (double-click opens terminal) ---
+:: go build -ldflags="-s -w" -o ocgt-monitor.exe .
 
-echo Build complete: ocgt-monitor.exe
+:: --- GUI version (double-click starts sidebar, no terminal window) ---
+go build -ldflags="-s -w -H windowsgui" -o ocgt-monitor.exe .
+
+echo Build complete: ocgt-monitor.exe (GUI mode)
