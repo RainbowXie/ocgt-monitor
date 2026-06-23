@@ -70,6 +70,35 @@
 
 > **PowerShell 用户：** 运行命令时需加 `.\` 前缀，如 `.\ocgt-monitor config init`
 
+## 平台支持
+
+| 平台 | GUI 形态 | CLI / 网页面板 |
+|---|---|---|
+| Windows | 贴边自动隐藏的停靠侧边栏 | ✅ |
+| macOS / Linux | 普通独立窗口（不停靠、不自动隐藏） | ✅ |
+
+> 停靠侧边栏的贴边自动隐藏是 Windows 平台原生能力；macOS/Linux 上为等价的独立窗口面板。CLI 命令与 `serve` 网页面板在所有平台一致可用。
+
+## 从源码构建
+
+构建依赖（CGO）：
+- **Windows**：MinGW64（gcc）
+- **macOS**：Xcode Command Line Tools
+- **Linux**：`libgtk-3-dev libwebkit2gtk-4.0-dev`
+
+```bash
+# macOS / Linux 原生 GUI
+go build -ldflags="-s -w" -o ocgt-monitor .
+
+# Windows GUI（见 build.bat）
+build.bat
+
+# 纯 CLI，无原生依赖（服务器/排错用）
+CGO_ENABLED=0 go build -tags nogui -o ocgt-monitor .
+```
+
+发行版二进制由 GitHub Actions 在三平台原生构建，推送 `v*` tag 时自动发布到 Releases。
+
 ## 使用模式
 
 [在线文档](https://xxtt-01.github.io/ocgt-monitor/) — 详细使用说明
@@ -111,18 +140,6 @@ ocgt-monitor serve
 set OPENCODE_GO_AUTH_COOKIE=session=xxx;.....
 set OPENCODE_GO_WORKSPACE_ID=wrk_xxxxxxxxxxxx
 set DEEPSEEK_API_KEY=sk-xxxxxxxxxxxxxxxx
-```
-
-## 自行构建
-
-需要 **Go 1.22+**、**MSYS2 MinGW64**（CGO 依赖）。
-
-```bash
-set CGO_ENABLED=1
-set PATH=C:\msys64\mingw64\bin;%PATH%
-
-:: 构建 GUI 版本（双击无终端窗口）
-go build -ldflags="-s -w -H windowsgui" -o ocgt-monitor.exe .
 ```
 
 ## 项目结构
