@@ -60,28 +60,36 @@ Run():      wv.Run(); wv.Destroy()
 
 `New` 返回一个空 `Sidebar`；`Run` 打印提示：GUI 未编译，请改用 `ocgt-monitor serve` 后在浏览器打开面板。该变体不 import `webview_go`，因此可在无 CGO / 无原生库的环境编译。
 
-## 构建依赖与命令
+## 构建依赖
 
-`webview_go` 走 CGO：
+`webview_go` 走 CGO，各平台编译期依赖：
 
-- Windows：MinGW64（现有 `build.bat`）。
-- macOS：Xcode Command Line Tools（系统自带 WebKit）。
-- Linux：`libwebkit2gtk` 开发库 + GTK3 开发库。
+- Windows：MinGW64（gcc）。WebView2 运行时由系统提供。
+- macOS：Xcode Command Line Tools（系统自带 WebKit 框架）。
+- Linux：GTK3 开发库 + webkit2gtk 开发库。
 
-构建命令：
+Linux 关键约束：`webview_go` 的 cgo 链接行硬编码 `pkg-config: gtk+-3.0 webkit2gtk-4.0`，编译期必须能找到 `webkit2gtk-4.0` 的 `.pc`。`ubuntu-24.04`（即当前 `ubuntu-latest`）已移除 `libwebkit2gtk-4.0-dev`，因此 Linux 构建固定使用 **`ubuntu-22.04`** runner，安装 `libgtk-3-dev libwebkit2gtk-4.0-dev`。
+
+## 构建方式：GitHub Actions
+
+跨平台构建走 GitHub Actions，在三种原生 runner 上各自编译，避免交叉编译 + 各平台原生库的麻烦。本地仅保留 `build.bat` 供 Windows 开发使用；不新增 `build.sh`（mac/Linux 发版交给 CI）。
+
+新增 `.github/workflows/build.yml`：
+
+- **触发**：
+  - `push` / `pull_request` → 三平台编译验证（CI 门禁）。
+  - 推送 `v*` tag → 三平台原生构建，产物自动创建 GitHub Release 并附上三个二进制。
+- **构建矩阵**：
+  - `windows-latest`：自带 MinGW，`CGO_ENABLED=1`，`go build -ldflags="-s -w -H windowsgui" -o ocgt-monitor.exe .`。
+  - `macos-latest`：`go build -ldflags="-s -w" -o ocgt-monitor .`。
+  - `ubuntu-22.04`：先 `apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev`，再 `go build -ldflags="-s -w" -o ocgt-monitor .`。
+- 三平台均使用 `go.mod` 声明的 Go 版本（`actions/setup-go` + `go-version-file: go.mod`）。
+
+本地纯 CLI 构建（无原生依赖，供服务器/排错用）：
 
 ```
-# Windows GUI（现有）
-build.bat
-
-# macOS / Linux 原生 GUI
-go build -o ocgt-monitor .
-
-# 纯 CLI，无原生依赖
 CGO_ENABLED=0 go build -tags nogui -o ocgt-monitor .
 ```
-
-新增 `build.sh` 用于 mac/Linux 宿主平台原生构建。
 
 ## 文档
 
@@ -97,13 +105,16 @@ README 增补：
 
 - 改动前：`go build .` 失败于 `imports golang.org/x/sys/windows: build constraints exclude all Go files`（已实测）。
 - 改动后：
-  - `CGO_ENABLED=0 go build -tags nogui .` 成功，产出可运行的 CLI 二进制 —— 证明拆分后跨平台地基打通。
-  - `go vet` 在各平台 build tag 下通过静态检查。
+  - 本机：`CGO_ENABLED=0 go build -tags nogui .` 成功，产出可运行的 CLI 二进制 —— 证明拆分后跨平台地基打通。
+  - 本机：`go vet` 在各平台 build tag 下通过静态检查。
+  - CI：`.github/workflows/build.yml` 在 windows/macos/ubuntu-22.04 三 runner 上原生编译全绿 —— 作为完整三平台编译的权威证明。
   - Windows 停靠侧边栏逻辑零改动（仅文件改名 + 加 build tag），不引入行为回归。
 
 将并排展示"改动前失败 / 改动后成功"的实际输出作为验证证据。
 
 ## 影响范围
 
-- 改动文件：`internal/sidebar/sidebar.go`（拆分），新增 `sidebar_unix.go` / `sidebar_nogui.go` / `build.sh`，更新 `README.md`。
-- 不改动：`main.go` 及其余所有包。
+- 拆分：`internal/sidebar/sidebar.go`。
+- 新增：`internal/sidebar/sidebar_unix.go`、`internal/sidebar/sidebar_nogui.go`、`.github/workflows/build.yml`。
+- 更新：`README.md`。
+- 不改动：`main.go`、`build.bat` 及其余所有包。
