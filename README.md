@@ -93,7 +93,7 @@ go build -ldflags="-s -w" -o ocgt-monitor .
 # Windows GUI（见 build.bat）
 build.bat
 
-# 纯 CLI，无原生依赖（服务器/排错用）
+# 无原生 GUI 窗口，无 CGO 依赖（仍含 CLI 与 serve 网页面板，服务器/排错用）
 CGO_ENABLED=0 go build -tags nogui -o ocgt-monitor .
 ```
 

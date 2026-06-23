@@ -55,9 +55,7 @@ type POINT struct{ X, Y int32 }
 
 func getScreenSize() (int, int) {
 	w, _, _ := procGetSystemMetrics.Call(0)
-	gdi32 = windows.NewLazySystemDLL("gdi32.dll")
 	h, _, _ := procGetSystemMetrics.Call(1)
-	gdi32 = windows.NewLazySystemDLL("gdi32.dll")
 	return int(w), int(h)
 }
 
