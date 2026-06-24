@@ -68,21 +68,32 @@ func readLineDefault(label, defaultVal string) string {
 	return defaultVal
 }
 
-func buildAccounts() []web.Account {
+func accountsFromConfig(conf *config.Config) []web.Account {
 	var accs []web.Account
-	for name, p := range cfg.Profiles {
+	for name, p := range conf.Profiles {
 		if p.Cookie != "" && p.WorkspaceID != "" {
 			accs = append(accs, web.Account{Name: name, Cookie: p.Cookie, WorkspaceID: p.WorkspaceID})
 		}
 	}
 	if len(accs) == 0 {
-		c, wks := os.Getenv("OPENCODE_GO_AUTH_COOKIE"), os.Getenv("OPENCODE_GO_WORKSPACE_ID")
-		if c != "" && wks != "" {
-			accs = append(accs, web.Account{Name: "默认", Cookie: c, WorkspaceID: wks})
+		ck, wks := os.Getenv("OPENCODE_GO_AUTH_COOKIE"), os.Getenv("OPENCODE_GO_WORKSPACE_ID")
+		if ck != "" && wks != "" {
+			accs = append(accs, web.Account{Name: "默认", Cookie: ck, WorkspaceID: wks})
 		}
 	}
 	sort.Slice(accs, func(i, j int) bool { return accs[i].Name < accs[j].Name })
 	return accs
+}
+
+func deepseekFromConfig(conf *config.Config) []web.DeepSeekAccount {
+	out := make([]web.DeepSeekAccount, 0, len(conf.DeepSeekAccounts))
+	for _, a := range conf.DeepSeekAccounts {
+		if a.Token == "" {
+			continue
+		}
+		out = append(out, web.DeepSeekAccount{Name: a.Name, Token: a.Token})
+	}
+	return out
 }
 
 func main() {
@@ -97,6 +108,8 @@ func main() {
 	case "watch": cmdWatch()
 	case "config": cmdConfigMain()
 	case "serve": cmdServe()
+	case "login-deepseek": cmdLoginDeepSeek()
+	case "login-opencode": cmdLoginOpenCode()
 case "version", "-v", "--version": fmt.Println("ocgt-monitor v" + version)
 	case "help", "-h", "--help": printUsage()
 	default:
@@ -107,7 +120,9 @@ case "version", "-v", "--version": fmt.Println("ocgt-monitor v" + version)
 }
 
 func startSidebar() {
-	srv := web.NewServer(buildAccounts())
+	srv := web.NewServer(accountsFromConfig(cfg))
+	srv.SetAccountsProvider(func() []web.Account { return accountsFromConfig(config.Load()) })
+	srv.SetDeepSeekProvider(func() []web.DeepSeekAccount { return deepseekFromConfig(config.Load()) })
 	go func() {
 		if err := srv.Start(":" + ocgtPort()); err != nil {
 			fmt.Fprintf(os.Stderr, "服务器启动失败: %v\n", err)
@@ -224,12 +239,66 @@ func cmdServe() {
 	}
 
 	// Headless mode: just start the API server (for CLI/curl access)
-	srv := web.NewServer(buildAccounts())
+	srv := web.NewServer(accountsFromConfig(cfg))
+	srv.SetAccountsProvider(func() []web.Account { return accountsFromConfig(config.Load()) })
+	srv.SetDeepSeekProvider(func() []web.DeepSeekAccount { return deepseekFromConfig(config.Load()) })
 	go func() {
 		if err := srv.Start(":" + ocgtPort()); err != nil { fmt.Fprintf(os.Stderr, "服务器启动失败: %v\n", err); os.Exit(1) }
 	}()
 	fmt.Println("API 服务已启动: http://127.0.0.1:8788")
 	select {}
+}
+
+func cmdLoginOpenCode() {
+	name := ""
+	if len(os.Args) > 2 {
+		name = strings.TrimSpace(os.Args[2])
+	}
+	fmt.Println("正在打开 OpenCode Go 登录窗口，请登录后进入你的 workspace 用量页…")
+	validate := func(cookie, wsid string) bool {
+		q := &quota.OpenCodeGoQuerier{Cookie: cookie, WorkspaceID: wsid}
+		_, err := q.FetchQuota()
+		return err == nil
+	}
+	cookie, wsid, err := sidebar.RunOpenCodeLogin(validate)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "登录失败: %v\n", err)
+		os.Exit(1)
+	}
+	if name == "" {
+		name = "OpenCode"
+	}
+	cfg.AddProfile(name, config.Profile{Cookie: cookie, WorkspaceID: wsid})
+	cfg.ActiveProfile = name
+	if err := cfg.Save(); err != nil {
+		fmt.Fprintf(os.Stderr, "保存失败: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Printf("OK OpenCode Go 账户 %q 已保存 (workspace %s)\n", name, wsid)
+}
+
+func cmdLoginDeepSeek() {
+	name := "DeepSeek"
+	if len(os.Args) > 2 && strings.TrimSpace(os.Args[2]) != "" {
+		name = strings.TrimSpace(os.Args[2])
+	}
+	fmt.Println("正在打开登录窗口，请在窗口内完成 DeepSeek 登录…")
+	validate := func(t string) bool {
+		q := &quota.DeepSeekWebQuerier{Token: t}
+		_, err := q.FetchSummary()
+		return err == nil
+	}
+	token, err := sidebar.RunDeepSeekLogin(validate)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "登录失败: %v\n", err)
+		os.Exit(1)
+	}
+	cfg.UpsertDeepSeekAccount(config.DeepSeekAccount{Name: name, Token: token})
+	if err := cfg.Save(); err != nil {
+		fmt.Fprintf(os.Stderr, "保存失败: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Printf("OK DeepSeek 账户 %q 已保存\n", name)
 }
 
 func showConfigHint() {
@@ -259,6 +328,8 @@ func printUsage() {
 	fmt.Println("  history               查看 Token 消耗历史")
 	fmt.Println("  watch                 持续监控")
 	fmt.Println("  serve                 启动 API 服务 (--sidebar 桌面侧边栏模式)")
+	fmt.Println("  login-deepseek <名称> 弹窗登录 DeepSeek 并保存网页凭证")
+	fmt.Println("  login-opencode <名称> 弹窗登录 OpenCode Go 并保存 cookie 凭证")
 	fmt.Println()
 	fmt.Println("环境变量（优先级高于配置文件）:")
 	fmt.Println("  OPENCODE_GO_AUTH_COOKIE")
