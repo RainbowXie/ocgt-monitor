@@ -4,7 +4,9 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"runtime"
 	"sort"
 	"strings"
 	"time"
@@ -110,6 +112,7 @@ func main() {
 	case "serve": cmdServe()
 	case "login-deepseek": cmdLoginDeepSeek()
 	case "login-opencode": cmdLoginOpenCode()
+	case "open-page": cmdOpenPage()
 case "version", "-v", "--version": fmt.Println("foundry-quota-sentinel v" + version)
 	case "help", "-h", "--help": printUsage()
 	default:
@@ -289,17 +292,76 @@ func cmdLoginDeepSeek() {
 		_, err := q.FetchSummary()
 		return err == nil
 	}
-	token, err := sidebar.RunDeepSeekLogin(validate)
+	token, tokenKey, err := sidebar.RunDeepSeekLogin(validate)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "登录失败: %v\n", err)
 		os.Exit(1)
 	}
-	cfg.UpsertDeepSeekAccount(config.DeepSeekAccount{Name: name, Token: token})
+	cfg.UpsertDeepSeekAccount(config.DeepSeekAccount{Name: name, Token: token, TokenKey: tokenKey})
 	if err := cfg.Save(); err != nil {
 		fmt.Fprintf(os.Stderr, "保存失败: %v\n", err)
 		os.Exit(1)
 	}
 	fmt.Printf("OK DeepSeek 账户 %q 已保存\n", name)
+}
+
+// cmdOpenPage 弹出一个 app 内窗口展示对应账户的服务商页面，并注入该账户登录态。
+// 用法: open-page <opencode|deepseek> <账户名>。由侧边栏右键菜单经 /api/open 拉起。
+func cmdOpenPage() {
+	if len(os.Args) < 4 {
+		fmt.Fprintln(os.Stderr, "用法: open-page <opencode|deepseek> <账户名>")
+		os.Exit(1)
+	}
+	provider, name := os.Args[2], strings.TrimSpace(os.Args[3])
+	switch provider {
+	case "opencode":
+		p, ok := cfg.Profiles[name]
+		if !ok || p.Cookie == "" || p.WorkspaceID == "" {
+			fmt.Fprintf(os.Stderr, "OpenCode 账户 %q 不存在或缺少凭证\n", name)
+			os.Exit(1)
+		}
+		url := "https://opencode.ai/workspace/" + p.WorkspaceID + "/go"
+		if err := sidebar.RunOpenCodePage(url, p.Cookie); err != nil {
+			fmt.Fprintf(os.Stderr, "内置窗口不可用(%v)，改用系统浏览器打开\n", err)
+			openBrowser(url)
+		}
+	case "deepseek":
+		var acc *config.DeepSeekAccount
+		for i := range cfg.DeepSeekAccounts {
+			if cfg.DeepSeekAccounts[i].Name == name {
+				acc = &cfg.DeepSeekAccounts[i]
+				break
+			}
+		}
+		if acc == nil || acc.Token == "" {
+			fmt.Fprintf(os.Stderr, "DeepSeek 账户 %q 不存在或缺少凭证\n", name)
+			os.Exit(1)
+		}
+		url := "https://platform.deepseek.com/usage"
+		if err := sidebar.RunDeepSeekPage(url, acc.Token, acc.TokenKey); err != nil {
+			fmt.Fprintf(os.Stderr, "内置窗口不可用(%v)，改用系统浏览器打开\n", err)
+			openBrowser(url)
+		}
+	default:
+		fmt.Fprintf(os.Stderr, "未知 provider: %s（应为 opencode 或 deepseek）\n", provider)
+		os.Exit(1)
+	}
+}
+
+// openBrowser 用系统默认浏览器打开 URL（内置窗口不可用时的回退）。
+func openBrowser(url string) {
+	var cmd *exec.Cmd
+	switch runtime.GOOS {
+	case "darwin":
+		cmd = exec.Command("open", url)
+	case "windows":
+		cmd = exec.Command("rundll32", "url.dll,FileProtocolHandler", url)
+	default:
+		cmd = exec.Command("xdg-open", url)
+	}
+	if err := cmd.Start(); err != nil {
+		fmt.Fprintf(os.Stderr, "打开浏览器失败: %v\n", err)
+	}
 }
 
 func showConfigHint() {

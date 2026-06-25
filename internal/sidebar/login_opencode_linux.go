@@ -82,6 +82,55 @@ func readOpenCodeCookies(path string) string {
 	return strings.Join(parts, "; ")
 }
 
+// writeOpenCodeCookies 把 "k=v; k2=v2" 形式的 cookie 串写成 WebKit 文本(Netscape)格式，
+// 供 set_persistent_storage 启动时载入，使打开的窗口带上该账户的登录态。
+// 7 列 tab 分隔：domain、includeSubdomains、path、secure、expiry、name、value。
+func writeOpenCodeCookies(f *os.File, cookie string) {
+	const expiry = "2000000000" // ~2033，足够远
+	w := bufio.NewWriter(f)
+	w.WriteString("# Netscape HTTP Cookie File\n")
+	for _, part := range strings.Split(cookie, ";") {
+		part = strings.TrimSpace(part)
+		if part == "" {
+			continue
+		}
+		eq := strings.IndexByte(part, '=')
+		if eq <= 0 {
+			continue
+		}
+		name, value := part[:eq], part[eq+1:]
+		// 标记 #HttpOnly_ 与登录时的解析对称；httpOnly 仅影响 JS 可见性，请求一样会带上。
+		fmt.Fprintf(w, "#HttpOnly_.opencode.ai\tTRUE\t/\tTRUE\t%s\t%s\t%s\n", expiry, name, value)
+	}
+	w.Flush()
+}
+
+// RunOpenCodePage 打开一个指向 opencode.ai 页面的窗口，先把该账户 cookie 落到持久化
+// 文件并设为 cookie store，WebKit 启动时载入即带上登录态。窗口保持打开直到用户关闭。
+func RunOpenCodePage(pageURL, cookie string) error {
+	w := webview.New(false)
+	defer w.Destroy()
+	w.SetTitle("OpenCode Go · 账户页")
+	w.SetSize(1100, 760, webview.HintNone)
+
+	f, err := os.CreateTemp("", "ocgt-oc-open-*.txt")
+	if err != nil {
+		return fmt.Errorf("创建临时 cookie 文件失败: %w", err)
+	}
+	cookiePath := f.Name()
+	writeOpenCodeCookies(f, cookie)
+	f.Close()
+	defer os.Remove(cookiePath)
+
+	cpath := C.CString(cookiePath)
+	C.ocgt_set_cookie_storage(w.Window(), cpath)
+	C.free(unsafe.Pointer(cpath))
+
+	w.Navigate(pageURL)
+	w.Run()
+	return nil
+}
+
 // RunOpenCodeLogin 打开 opencode.ai 登录窗口，把 cookie 持久化到临时文件，
 // 监听 URL 取 workspaceID，读文件拼 cookie 串后用 validate 真实验证，命中即返回。
 func RunOpenCodeLogin(validate func(cookie, wsid string) bool) (string, string, error) {

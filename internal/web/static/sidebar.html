@@ -857,6 +857,31 @@
             .hide {
                 display: none;
             }
+            .ctxmenu {
+                position: fixed;
+                z-index: 2000;
+                min-width: 130px;
+                background: var(--modal);
+                border: var(--card-bd);
+                border-radius: 10px;
+                box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+                padding: 4px;
+            }
+            .ctxmenu.hide {
+                display: none;
+            }
+            .ctxitem {
+                padding: 7px 12px;
+                font-size: 12px;
+                color: var(--text);
+                border-radius: 7px;
+                cursor: pointer;
+                white-space: nowrap;
+            }
+            .ctxitem:hover {
+                background: rgba(var(--accent-rgb), 0.15);
+                color: var(--accent);
+            }
             .modal-bg {
                 position: fixed;
                 inset: 0;
@@ -1017,6 +1042,9 @@
                     </div>
                 </div>
             </div>
+        </div>
+        <div id="ctxMenu" class="ctxmenu hide">
+            <div class="ctxitem" id="ctxOpen">打开账户页面</div>
         </div>
         <script src="echarts.min.js"></script>
         <script>
@@ -1190,7 +1218,9 @@
                         qrow("Monthly", d.monthly, "g3");
                 }
                 return (
-                    "<div class=acard><div class=acard-h><span class=ctype>OpenCode Go</span><span class=cname>" +
+                    '<div class=acard data-prov=opencode data-name="' +
+                    qesc(a.name) +
+                    '"><div class=acard-h><span class=ctype>OpenCode Go</span><span class=cname>' +
                     qesc(a.name) +
                     "</span></div>" +
                     body +
@@ -1386,7 +1416,10 @@
                     }
                     var h = "";
                     arr.forEach(function (c, idx) {
-                        h += "<div class=bc>";
+                        h +=
+                            '<div class=bc data-prov=deepseek data-name="' +
+                            qesc(c.name) +
+                            '">';
                         h +=
                             "<div class=bc-r><span class=ctype>DeepSeek</span><span class=cname>" +
                             qesc(c.name) +
@@ -1514,6 +1547,52 @@
                 nameIn.addEventListener("keydown", function (e) {
                     if (e.key === "Enter")
                         document.getElementById("modalGo").click();
+                });
+            })();
+            /* 右键菜单：打开账户对应服务商页面（app 内窗口，注入该账户登录态） */
+            (function () {
+                var menu = document.getElementById("ctxMenu");
+                var openItem = document.getElementById("ctxOpen");
+                var cur = { prov: "", name: "" };
+                function hide() {
+                    menu.classList.add("hide");
+                }
+                function showAt(x, y) {
+                    menu.classList.remove("hide");
+                    var mw = menu.offsetWidth,
+                        mh = menu.offsetHeight;
+                    var vx = Math.min(x, window.innerWidth - mw - 6);
+                    var vy = Math.min(y, window.innerHeight - mh - 6);
+                    menu.style.left = Math.max(4, vx) + "px";
+                    menu.style.top = Math.max(4, vy) + "px";
+                }
+                document.addEventListener("contextmenu", function (e) {
+                    var card =
+                        e.target.closest && e.target.closest("[data-prov]");
+                    if (!card) {
+                        hide();
+                        return;
+                    }
+                    e.preventDefault();
+                    cur.prov = card.getAttribute("data-prov");
+                    cur.name = card.getAttribute("data-name") || "";
+                    showAt(e.clientX, e.clientY);
+                });
+                openItem.addEventListener("click", function () {
+                    if (!cur.prov) return;
+                    fetch(
+                        "/api/open?provider=" +
+                            encodeURIComponent(cur.prov) +
+                            "&name=" +
+                            encodeURIComponent(cur.name),
+                    );
+                    hide();
+                });
+                document.addEventListener("click", hide);
+                document.addEventListener("scroll", hide, true);
+                window.addEventListener("resize", hide);
+                document.addEventListener("keydown", function (e) {
+                    if (e.key === "Escape") hide();
                 });
             })();
             /* main loop */

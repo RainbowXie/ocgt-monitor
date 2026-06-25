@@ -202,6 +202,27 @@ func (s *Server) Start(addr string) error {
 		writeJSON(w, 200, map[string]any{"success": true})
 	})
 
+	// /api/open 拉起一个子进程，弹出 app 内窗口展示该账户对应服务商页面（注入登录态）。
+	mux.HandleFunc("/api/open", func(w http.ResponseWriter, r *http.Request) {
+		provider := r.URL.Query().Get("provider")
+		name := r.URL.Query().Get("name")
+		if provider != "opencode" && provider != "deepseek" {
+			writeJSON(w, 200, map[string]any{"success": false, "error": "bad provider"})
+			return
+		}
+		exe, err := os.Executable()
+		if err != nil {
+			writeJSON(w, 200, map[string]any{"success": false, "error": err.Error()})
+			return
+		}
+		cmd := exec.Command(exe, "open-page", provider, name)
+		if err := cmd.Start(); err != nil {
+			writeJSON(w, 200, map[string]any{"success": false, "error": err.Error()})
+			return
+		}
+		writeJSON(w, 200, map[string]any{"success": true})
+	})
+
 	mux.HandleFunc("/api/history", func(w http.ResponseWriter, r *http.Request) {
 		logs, e := storage.ReadOCGTLogs(storage.OCGTLogDir())
 		if e != nil { writeJSON(w, 200, map[string]any{"success": false, "error": e.Error()}); return }
