@@ -7,7 +7,7 @@
 *一个桌面侧边栏统一监视 OpenCode Go 额度与 DeepSeek token 用量 —— 多账户、浏览器登录。*
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.7.2-4466FF?style=flat-square" alt="version">
+  <img src="https://img.shields.io/badge/version-0.7.3-4466FF?style=flat-square" alt="version">
   <img src="https://img.shields.io/badge/Go-1.26+-00ADD8?style=flat-square&logo=go" alt="go">
   <img src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-0078D4?style=flat-square" alt="platform">
   <img src="https://img.shields.io/badge/build-CGO-FF2D78?style=flat-square" alt="cgo">
@@ -40,7 +40,8 @@
   <td><strong>双主题</strong><br><span style="color:#5A5A7A;font-size:13px">亮色「灵动卡片」与暗色「深色专业」一键切换。</span></td>
 </tr>
 <tr>
-  <td colspan="2"><strong>自动刷新</strong><br><span style="color:#5A5A7A;font-size:13px">账户额度 2 秒轮询，DeepSeek 用量定时刷新。</span></td>
+  <td><strong>右键打开账户页</strong><br><span style="color:#5A5A7A;font-size:13px">右键任意卡片 → 弹出 app 内窗口，注入该账户登录态直达对应服务商页面（OpenCode workspace / DeepSeek 用量页）。</span></td>
+  <td><strong>自动刷新</strong><br><span style="color:#5A5A7A;font-size:13px">账户额度 2 秒轮询，DeepSeek 用量定时刷新。</span></td>
 </tr>
 </table>
 

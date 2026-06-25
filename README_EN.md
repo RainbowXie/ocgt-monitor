@@ -7,7 +7,7 @@
 *One desktop sidebar to watch OpenCode Go quota and DeepSeek token usage — multi-account, browser login.*
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.7.2-4466FF?style=flat-square" alt="version">
+  <img src="https://img.shields.io/badge/version-0.7.3-4466FF?style=flat-square" alt="version">
   <img src="https://img.shields.io/badge/Go-1.26+-00ADD8?style=flat-square&logo=go" alt="go">
   <img src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-0078D4?style=flat-square" alt="platform">
   <img src="https://img.shields.io/badge/build-CGO-FF2D78?style=flat-square" alt="cgo">
@@ -40,7 +40,8 @@
   <td><strong>Dual theme</strong><br><span style="color:#5A5A7A;font-size:13px">Light "glassy cards" and dark "pro" themes, one-click switch.</span></td>
 </tr>
 <tr>
-  <td colspan="2"><strong>Auto refresh</strong><br><span style="color:#5A5A7A;font-size:13px">Account quota polled every 2s; DeepSeek usage on a timer.</span></td>
+  <td><strong>Right-click → account page</strong><br><span style="color:#5A5A7A;font-size:13px">Right-click any card → a pop-up window opens the provider page (OpenCode workspace / DeepSeek usage) with that account's login state injected.</span></td>
+  <td><strong>Auto refresh</strong><br><span style="color:#5A5A7A;font-size:13px">Account quota polled every 2s; DeepSeek usage on a timer.</span></td>
 </tr>
 </table>
 

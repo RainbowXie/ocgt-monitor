@@ -23,7 +23,7 @@ var currencySymbols = map[string]string{"CNY": "¥", "USD": "$", "EUR": "€", "
 var cfg *config.Config
 var inputReader = bufio.NewScanner(os.Stdin)
 
-var version = "0.7.2"
+var version = "0.7.3"
 func init() { cfg = config.Load() }
 
 func currencySymbol(code string) string {
