@@ -7,7 +7,7 @@
 *一个桌面侧边栏统一监视 OpenCode Go 额度与 DeepSeek token 用量 —— 多账户、浏览器登录。*
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.7.3-4466FF?style=flat-square" alt="version">
+  <img src="https://img.shields.io/badge/version-0.7.4-4466FF?style=flat-square" alt="version">
   <img src="https://img.shields.io/badge/Go-1.26+-00ADD8?style=flat-square&logo=go" alt="go">
   <img src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-0078D4?style=flat-square" alt="platform">
   <img src="https://img.shields.io/badge/build-CGO-FF2D78?style=flat-square" alt="cgo">
@@ -52,6 +52,12 @@
 3. **运行** —— 双击二进制，桌面侧边栏即刻启动，无需终端。
 
 > **PowerShell：** 命令需加 `.\` 前缀，如 `.\foundry-quota-sentinel login-deepseek 我的号`
+
+> **Linux 选哪个产物？** GUI 依赖系统 webkit2gtk，按发行版选 deb，`apt` 会自动装好依赖：
+> - 新发行版（Ubuntu 24.04 / Mint 22）→ `*-webkit41.deb`
+> - 老发行版（Ubuntu 22.04 / Mint 21）→ `*-webkit40.deb`
+> - 安装：`sudo apt install ./foundry-quota-sentinel_*_amd64-webkit4X.deb`
+> - 无 webkit / 非 Debian 系 / 不确定 → `*-linux-portable`（纯 Go 静态、零依赖），运行后浏览器打开 `http://127.0.0.1:8788/sidebar.html`
 
 ## 平台支持
 

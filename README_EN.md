@@ -7,7 +7,7 @@
 *One desktop sidebar to watch OpenCode Go quota and DeepSeek token usage — multi-account, browser login.*
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.7.3-4466FF?style=flat-square" alt="version">
+  <img src="https://img.shields.io/badge/version-0.7.4-4466FF?style=flat-square" alt="version">
   <img src="https://img.shields.io/badge/Go-1.26+-00ADD8?style=flat-square&logo=go" alt="go">
   <img src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-0078D4?style=flat-square" alt="platform">
   <img src="https://img.shields.io/badge/build-CGO-FF2D78?style=flat-square" alt="cgo">
@@ -52,6 +52,12 @@
 3. **Run** — double-click the binary; the desktop sidebar starts, no terminal needed.
 
 > **PowerShell:** prefix commands with `.\`, e.g. `.\foundry-quota-sentinel login-deepseek myacct`
+
+> **Which Linux artifact?** The GUI needs the system's webkit2gtk; pick the deb for your distro and `apt` pulls the deps automatically:
+> - Newer distros (Ubuntu 24.04 / Mint 22) → `*-webkit41.deb`
+> - Older distros (Ubuntu 22.04 / Mint 21) → `*-webkit40.deb`
+> - Install: `sudo apt install ./foundry-quota-sentinel_*_amd64-webkit4X.deb`
+> - No webkit / non-Debian / unsure → `*-linux-portable` (pure-Go static, zero deps); run it and open `http://127.0.0.1:8788/sidebar.html` in a browser.
 
 ## Platform Support
 
