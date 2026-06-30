@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"net"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -152,9 +153,23 @@ func startSidebar() {
 			os.Exit(1)
 		}
 	}()
-	time.Sleep(500 * time.Millisecond)
+	// 轮询等服务器真正起来再开窗口，避免 webview 抢跑导致 "connection refused"
+	waitServerReady("127.0.0.1:"+ocgtPort(), 5*time.Second)
 	sb := sidebar.New(8788, cfg.WindowW, cfg.WindowH)
 	sb.Run()
+}
+
+// waitServerReady 轮询直到本地服务器开始监听（或超时）。
+func waitServerReady(addr string, timeout time.Duration) {
+	deadline := time.Now().Add(timeout)
+	for time.Now().Before(deadline) {
+		c, err := net.DialTimeout("tcp", addr, 300*time.Millisecond)
+		if err == nil {
+			c.Close()
+			return
+		}
+		time.Sleep(50 * time.Millisecond)
+	}
 }
 
 func cmdQuota() {
